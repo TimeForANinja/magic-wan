@@ -1,0 +1,10 @@
+[Unit]
+Description=Magic WAN
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/etc/magic_wan/start_script.sh
+
+[Install]
+WantedBy=multi-user.target

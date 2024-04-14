@@ -1,0 +1,23 @@
+privKey: wan4.privkey
+id: 4
+behindNAT: true
+
+routedInterfaces: eth0
+natInterfaces:
+  - iface: eth1
+    to: 172.16.1.0/24
+    to: 192.168.2.0/24
+
+vpnNet: 172.31.0.0/24
+wanNet: 172.31.1.0/24
+
+peers:
+  - id: 1
+    host: core01.wan.kutscha.me
+    pubKey: core01.pubkey
+  - id: 2
+    host: core02.wan.kutscha.me
+    pubKey: core02.pubkey
+  - id: 3
+    host: core03.wan.kutscha.me
+    pubKey: core03.pubkey
