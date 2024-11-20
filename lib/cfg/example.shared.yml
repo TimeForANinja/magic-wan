@@ -1,0 +1,17 @@
+config-version: 1
+mtu: 1350
+
+wireguard:
+  startPort: 51821
+  peers:
+    - pubkey: "peer1pubkey"
+      name: "whatever"
+      uid: "peer1uid"
+      host: "core1.wan.example.com"
+      keepalive: true
+    - pubkey: "peer2pubkey"
+      uid: "peer2uid"
+      name: "stfu"
+
+router:
+  subnet: "192.168.1.0/24"
