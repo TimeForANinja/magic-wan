@@ -15,10 +15,22 @@ func calcOffset(target, source uint8) (offset uint32) {
 }
 
 // getNthAddress calculates the nth IP address in a given IP network
-func getNthAddress(network *net.IPNet, n int) (net.IP, error) {
-	ip := network.IP.To4()
-	if ip == nil {
-		return nil, fmt.Errorf("only IPv4 is supported")
+func getNthAddress(network *net.IPNet, n int) (net.IP, int, error) {
+	ip := network.IP
+	var ipLength int
+	var prefix int
+
+	// Determine whether it's IPv4 or IPv6
+	if ipv4 := ip.To4(); ipv4 != nil {
+		ip = ipv4
+		prefix = 31
+		ipLength = 4
+	} else if ipv6 := ip.To16(); ipv6 != nil && ip.To4() == nil {
+		ip = ipv6
+		prefix = 127
+		ipLength = 16
+	} else {
+		return nil, -1, fmt.Errorf("only IPv4 or IPv6 is supported")
 	}
 
 	// Turn IP into a *big.Int
@@ -33,13 +45,13 @@ func getNthAddress(network *net.IPNet, n int) (net.IP, error) {
 
 	// Create the new IP address
 	newIP := ipInt.Bytes()
-	if len(newIP) < 4 {
-		paddedIP := make([]byte, 4)
-		copy(paddedIP[4-len(newIP):], newIP)
+	if len(newIP) < ipLength {
+		paddedIP := make([]byte, ipLength)
+		copy(paddedIP[ipLength-len(newIP):], newIP)
 		newIP = paddedIP
 	}
 
-	return newIP, nil
+	return newIP, prefix, nil
 }
 
 func getPeerToPeerNet(myIDX, peerIDX uint8, baseNet string) (myIP, peerIP net.IP, p2pNet *net.IPNet, err error) {
@@ -48,17 +60,17 @@ func getPeerToPeerNet(myIDX, peerIDX uint8, baseNet string) (myIP, peerIP net.IP
 		return
 	}
 
-	myIP, err = getNthAddress(ipNet, int(calcOffset(myIDX, peerIDX)))
+	myIP, prefix, err := getNthAddress(ipNet, int(calcOffset(myIDX, peerIDX)))
 	if err != nil {
 		return
 	}
 
-	peerIP, err = getNthAddress(ipNet, int(calcOffset(peerIDX, myIDX)))
+	peerIP, _, err = getNthAddress(ipNet, int(calcOffset(peerIDX, myIDX)))
 	if err != nil {
 		return
 	}
 
-	_, p2pNet, err = net.ParseCIDR(myIP.String() + "/31")
+	_, p2pNet, err = net.ParseCIDR(fmt.Sprintf("%s/%d", myIP.String(), prefix))
 	if err != nil {
 		return
 	}

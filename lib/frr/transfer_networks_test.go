@@ -92,6 +92,24 @@ func Test_getPeerToPeerNet(t *testing.T) {
 			wantPeerIP: "10.0.1.11",
 			wantP2PNet: "10.0.1.10/31",
 		},
+		{
+			name:       "IPv6 Address",
+			myIDX:      0,
+			peerIDX:    1,
+			baseNet:    "2001:db8::/64",
+			wantMyIP:   "2001:db8::",
+			wantPeerIP: "2001:db8::1",
+			wantP2PNet: "2001:db8::/127",
+		},
+		{
+			name:       "IPv6 Address (inverted)",
+			myIDX:      1,
+			peerIDX:    0,
+			baseNet:    "2001:db8::/64",
+			wantMyIP:   "2001:db8::1",
+			wantPeerIP: "2001:db8::",
+			wantP2PNet: "2001:db8::/127",
+		},
 	}
 
 	for _, tt := range tests {

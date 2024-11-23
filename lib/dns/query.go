@@ -5,14 +5,14 @@ import (
 )
 
 // QueryDNS queries the given DNS servers for the provided hostname
-func QueryDNS(hostname string) (ips []string, err error) {
+func QueryDNS(hostname string, ipv4only bool) (ips []string, err error) {
 	addresses, err := net.LookupIP(hostname)
 	if err != nil {
 		return nil, err
 	}
 	for _, ip := range addresses {
-		if ipv4 := ip.To4(); ipv4 != nil {
-			ips = append(ips, ipv4.String())
+		if !ipv4only || ip.To4() != nil {
+			ips = append(ips, ip.String())
 		}
 	}
 
