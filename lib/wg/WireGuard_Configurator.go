@@ -1,12 +1,13 @@
 package wg
 
 import (
+	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"log"
 	"net"
 )
 
-func main() {
+func createNewDevice() {
 	client := mustCreateController()
 	defer client.Close()
 
@@ -44,4 +45,19 @@ func main() {
 	mustConfigureDevice(client, ifcName, config)
 
 	log.Printf("Successfully configured WireGuard interface %s", ifcName)
+}
+
+func removeDevice(client *wgctrl.Client, ifcName string) {
+	zero := 0
+	cfg := wgtypes.Config{
+		// Clear device config.
+		PrivateKey:   &wgtypes.Key{},
+		ListenPort:   &zero,
+		FirewallMark: &zero,
+
+		// Clear all peers.
+		ReplacePeers: true,
+	}
+
+	mustConfigureDevice(client, ifcName, cfg)
 }

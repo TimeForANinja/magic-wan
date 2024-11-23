@@ -44,3 +44,13 @@ func (s *Service) Disable() error {
 	}
 	return nil
 }
+
+func (s *Service) Reload() error {
+	// TODO: check if this works well for frr / ospfd
+	cmd := exec.Command("systemctl", "reload", s.Name)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to disable %s service: %v, output: %s", s.Name, err, string(output))
+	}
+	return nil
+}
