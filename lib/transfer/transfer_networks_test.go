@@ -1,4 +1,4 @@
-package frr
+package transfer
 
 import (
 	"testing"
@@ -114,7 +114,7 @@ func Test_getPeerToPeerNet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			myIP, peerIP, p2pNet, err := getPeerToPeerNet(tt.myIDX, tt.peerIDX, tt.baseNet)
+			myIP, peerIP, p2pNet, err := GetPeerToPeerNet(tt.myIDX, tt.peerIDX, tt.baseNet)
 
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)

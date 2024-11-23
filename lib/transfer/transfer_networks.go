@@ -1,4 +1,4 @@
-package frr
+package transfer
 
 import (
 	"fmt"
@@ -54,7 +54,7 @@ func getNthAddress(network *net.IPNet, n int) (net.IP, int, error) {
 	return newIP, prefix, nil
 }
 
-func getPeerToPeerNet(myIDX, peerIDX uint8, baseNet string) (myIP, peerIP net.IP, p2pNet *net.IPNet, err error) {
+func GetPeerToPeerNet(myIDX, peerIDX uint8, baseNet string) (myIP, peerIP net.IP, p2pNet *net.IPNet, err error) {
 	_, ipNet, err := net.ParseCIDR(baseNet)
 	if err != nil {
 		return
