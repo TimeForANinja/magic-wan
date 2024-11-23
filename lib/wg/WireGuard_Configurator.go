@@ -1,7 +1,6 @@
 package wg
 
 import (
-	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"log"
 	"net"
@@ -11,11 +10,11 @@ func main() {
 	client := mustCreateController()
 	defer client.Close()
 
-	masterKey := mustGenerateKeyPair()
+	masterKey := mustGeneratePrivateKey()
 
 	// Define the configuration for the WireGuard interface
 	config := wgtypes.Config{
-		PrivateKey:   *masterKey, // Generate a private key for this interface
+		PrivateKey:   &masterKey, // Generate a private key for this interface
 		ListenPort:   new(int),   // Specify a listen port, nil to randomize
 		ReplacePeers: true,       // Replace existing peers with the provided ones
 		Peers: []wgtypes.PeerConfig{

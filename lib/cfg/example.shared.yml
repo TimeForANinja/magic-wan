@@ -6,11 +6,11 @@ wireguard:
   peers:
     - pubkey: "peer1pubkey"
       name: "whatever"
-      uid: "peer1uid"
+      uid: 0
       host: "core1.wan.example.com"
       keepalive: true
     - pubkey: "peer2pubkey"
-      uid: "peer2uid"
+      uid: 2
       name: "stfu"
 
 router:
