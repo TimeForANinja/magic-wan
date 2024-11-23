@@ -1,44 +1,44 @@
 package wg
 
 import (
+	"fmt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"log"
 )
 
-func mustParsePublicKey(key string) wgtypes.Key {
+func MustParsePublicKey(key string) wgtypes.Key {
 	publicKey, err := wgtypes.ParseKey(key)
 	if err != nil {
-		log.Fatalf("Failed to parse public key: %v", err)
+		panic(fmt.Sprintf("Failed to parse public key: %v", err))
 	}
 	return publicKey
 }
 
-func mustParsePrivateKey(key string) wgtypes.Key {
+func MustParsePrivateKey(key string) wgtypes.Key {
 	privateKey, err := wgtypes.ParseKey(key)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %v", err)
+		panic(fmt.Sprintf("Failed to parse private key: %v", err))
 	}
 	return privateKey
 }
 
-func mustGeneratePrivateKey() wgtypes.Key {
+func MustGeneratePrivateKey() wgtypes.Key {
 	privateKey, err := wgtypes.GeneratePrivateKey()
 	if err != nil {
-		log.Fatalf("Failed to generate private key: %v", err)
+		panic(fmt.Sprintf("Failed to generate private key: %v", err))
 	}
 	return privateKey
 }
 
-func generateKeyPair() (wgtypes.Key, wgtypes.Key, error) {
-	privateKey := mustGeneratePrivateKey()
+func GenerateKeyPair() (wgtypes.Key, wgtypes.Key, error) {
+	privateKey := MustGeneratePrivateKey()
 	publicKey := privateKey.PublicKey()
 	return privateKey, publicKey, nil
 }
 
-func mustGenerateKeyPair() (wgtypes.Key, wgtypes.Key) {
-	privateKey, publicKey, err := generateKeyPair()
+func MustGenerateKeyPair() (wgtypes.Key, wgtypes.Key) {
+	privateKey, publicKey, err := GenerateKeyPair()
 	if err != nil {
-		log.Fatalf("Failed to generate key pair: %v", err)
+		panic(fmt.Sprintf("Failed to generate key pair: %v", err))
 	}
 	return privateKey, publicKey
 }

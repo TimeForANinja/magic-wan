@@ -22,3 +22,9 @@ Endpoint = %s
 AllowedIPs = %s
 `, selfName, privateKey, address, listenPort, mtu, peerName, publicKey, endpoint, allowedIPs)
 }
+
+func CalculatePort(startPort uint16, peerIDX uint8) *int {
+	// TODO: check if this makes sense
+	port := int(startPort + uint16(peerIDX))
+	return &port
+}

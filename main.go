@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"magic-wan/lib/cfg"
 	"magic-wan/lib/osUtil"
-	"magic-wan/lib/transfer"
 	"magic-wan/lib/wg"
 )
 
@@ -14,8 +13,17 @@ func main() {
 
 	err, privateCfg, sharedCfg := loadSettings()
 	panicOn(err)
-	err = buildConfigs(privateCfg, sharedCfg)
+	wgPeers, err := buildConfigs(privateCfg, sharedCfg)
+	fmt.Println(wgPeers)
 	panicOn(err)
+
+	client := wg.MustCreateController()
+	defer client.Close()
+	for _, peer := range wgPeers {
+		err, config := peer.ToWGConfig()
+		panicOn(err)
+		wg.CreateNewDevice(client, peer.Name, config)
+	}
 
 	// TODO: remove
 	return
@@ -57,7 +65,7 @@ func loadSettings() (error, *cfg.PrivateConfig, *cfg.SharedConfig) {
 	return nil, private, shared
 }
 
-func buildConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig) error {
+func buildConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig) ([]cfg.WGLink, error) {
 	// find config for self
 	var self *cfg.Peer
 	for _, peer := range shared.SharedWireGuard.Peers {
@@ -67,8 +75,10 @@ func buildConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig) error {
 		}
 	}
 	if self == nil {
-		return fmt.Errorf("failed to find self in shared config")
+		return nil, fmt.Errorf("failed to find self in shared config")
 	}
+
+	peers := make([]cfg.WGLink, 0)
 
 	// build peer != self connections
 	for _, peer := range shared.SharedWireGuard.Peers {
@@ -76,17 +86,14 @@ func buildConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig) error {
 			continue
 		}
 
-		wgName := wg.BuildName(private.NodeID, peer.UID)
-		myIP, peerIP, sharedNW, err := transfer.GetPeerToPeerNet(private.NodeID, peer.UID, shared.Router.Subnet)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("Tunnel %s for (%s -> %s)\n", wgName, myIP.String(), peerIP.String())
-
-		cfg := wg.BuildBaseConfig(self.Name, private.PrivateWireGuard.PrivateKey, myIP.String(), shared.SharedWireGuard.StartPort+uint16(private.NodeID), shared.MTU, peer.Name, peer.PublicKey, peer.Hostname, sharedNW.String())
-		fmt.Println(cfg)
+		peers = append(peers, cfg.WGLink{
+			General:     shared,
+			Name:        wg.BuildName(self.UID, peer.UID),
+			Self:        self,
+			SelfPrivate: private,
+			Peer:        &peer,
+		})
 	}
 
-	// TODO: implement
-	return nil
+	return peers, nil
 }

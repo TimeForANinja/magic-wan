@@ -2,4 +2,4 @@ config-version: 1
 node-id: 2
 
 wireguard:
-  privkey: "your-private-key-here"
+  privkey: "KJuGi8mcqgmuTR7rDc0m+K3ab4LlCTd8Ns687tHpRWc="
