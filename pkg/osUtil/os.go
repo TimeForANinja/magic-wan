@@ -14,12 +14,12 @@ func EnableIPV4Routing() error {
 
 	file, err := os.OpenFile(path, os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("failed to open file %s: %v", path, err)
+		return fmt.Errorf("failed to open file %s: %w", path, err)
 	}
 	defer file.Close()
 
 	if _, err = file.WriteString(value); err != nil {
-		return fmt.Errorf("failed to write to file %s: %v", path, err)
+		return fmt.Errorf("failed to write to file %s: %w", path, err)
 	}
 
 	return nil
@@ -33,7 +33,7 @@ func InstallPackages(packages []string) error {
 	for _, pkg := range packages {
 		cmd := exec.Command("apt", "install", "-y", pkg)
 		if output, err := cmd.CombinedOutput(); err != nil {
-			return fmt.Errorf("failed to install %s: %v\nOutput: %s", pkg, err, output)
+			return fmt.Errorf("failed to install %s: %w\nOutput: %s", pkg, err, output)
 		}
 	}
 	return nil

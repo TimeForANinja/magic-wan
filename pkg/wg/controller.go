@@ -15,7 +15,7 @@ func MustCreateController() *wgctrl.Client {
 	return client
 }
 
-func mustConfigureDevice(client *wgctrl.Client, ifcName string, config wgtypes.Config) {
+func MustConfigureDevice(client *wgctrl.Client, ifcName string, config wgtypes.Config) {
 	err := client.ConfigureDevice(ifcName, config)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to configure WireGuard interface %s: %v", ifcName, err))

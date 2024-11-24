@@ -1,4 +1,4 @@
-package lib
+package frr
 
 import (
 	"bufio"
@@ -6,25 +6,12 @@ import (
 	"os"
 )
 
-// Helper function to compare slices
-func equal(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // GenericFileProcessor reads a file, applies a modification function to each line, and writes it back to the file.
 func GenericFileProcessor(filePath string, modifyFunc func(string) string) error {
 	// Open the file for reading
 	file, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to open file: %v", err)
+		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer file.Close()
 
@@ -37,13 +24,13 @@ func GenericFileProcessor(filePath string, modifyFunc func(string) string) error
 
 	// Check for reading errors
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("failed to read file: %v", err)
+		return fmt.Errorf("failed to read file: %w", err)
 	}
 
 	// Open the file for writing
 	file, err = os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
-		return fmt.Errorf("failed to open file for writing: %v", err)
+		return fmt.Errorf("failed to open file for writing: %w", err)
 	}
 	defer file.Close()
 
@@ -53,13 +40,13 @@ func GenericFileProcessor(filePath string, modifyFunc func(string) string) error
 	for _, line := range lines {
 		modifiedLine := modifyFunc(line)
 		if _, err := writer.WriteString(modifiedLine + "\n"); err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
+			return fmt.Errorf("failed to write to file: %w", err)
 		}
 	}
 
 	// Flush the buffer
 	if err := writer.Flush(); err != nil {
-		return fmt.Errorf("failed to flush buffer to file: %v", err)
+		return fmt.Errorf("failed to flush buffer to file: %w", err)
 	}
 
 	return nil

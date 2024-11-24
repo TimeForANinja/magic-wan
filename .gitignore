@@ -1,2 +1,2 @@
 *.yml
-!lib/cfg/example.*.yml
+!internal/cfg/example.*.yml
