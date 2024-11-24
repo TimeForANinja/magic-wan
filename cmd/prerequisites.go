@@ -1,13 +1,15 @@
 package main
 
 import (
+	"golang.zx2c4.com/wireguard/wgctrl"
 	"magic-wan/internal"
 	"magic-wan/internal/cfg"
 	"magic-wan/pkg/frr"
 	"magic-wan/pkg/osUtil"
+	"magic-wan/pkg/wg"
 )
 
-func ensurePrerequisites() (*cfg.PrivateConfig, *cfg.SharedConfig) {
+func ensurePrerequisites() (*cfg.PrivateConfig, *cfg.SharedConfig, *wgctrl.Client) {
 	checkDependencies()
 
 	baseConfigureDependencies()
@@ -15,7 +17,11 @@ func ensurePrerequisites() (*cfg.PrivateConfig, *cfg.SharedConfig) {
 	privateCfg, sharedCfg, err := loadSettings()
 	panicOn(err)
 
-	// TODO: as a preparation all existing wg interfaces should be removed
+	// get wireguard controller
+	wgClient := wg.MustCreateController()
+
+	// as a preparation all existing wg interfaces will be removed
+	removeAllWGDevices(wgClient)
 
 	// register self as a service to auto-start
 	service, err := osUtil.InstallAsService()
@@ -23,7 +29,17 @@ func ensurePrerequisites() (*cfg.PrivateConfig, *cfg.SharedConfig) {
 	err = service.Enable()
 	panicOn(err)
 
-	return privateCfg, sharedCfg
+	return privateCfg, sharedCfg, wgClient
+}
+
+func removeAllWGDevices(client *wgctrl.Client) {
+	devices, err := wg.GetDevices(client)
+	panicOn(err)
+
+	for _, device := range devices {
+		err := wg.DisableDevice(client, device.Name)
+		panicOn(err)
+	}
 }
 
 func baseConfigureDependencies() {

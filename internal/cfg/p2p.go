@@ -1,9 +1,9 @@
 package cfg
 
 import (
-	"fmt"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"magic-wan/pkg/transferNetwork"
+	"magic-wan/pkg/various"
 	"net"
 	"time"
 )
@@ -26,30 +26,25 @@ func (settings *P2P) GetKeepalive() *time.Duration {
 	return &keepAlive
 }
 
-func (settings *P2P) GetEndpoint(peerPort int) (*net.UDPAddr, error) {
-	// Resolve hostname to *net.UDPAddr
-	var endpoint *net.UDPAddr
-	var err error
-
-	if settings.Peer.Hostname != "" {
-		endpoint, err = net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", settings.Peer.Hostname, peerPort))
-		if err != nil {
-			return endpoint, err
-		}
-	}
-	return endpoint, nil
+func (settings *P2P) GetName() string {
+	return transferNetwork.BuildWireguardInterfaceName(settings.Self.UID, settings.Peer.UID)
 }
 
-func (settings *P2P) ToConfig(myPort, peerPort int) (wgtypes.Config, error) {
-	selfPrivateKey, err := wgtypes.ParseKey(settings.SelfPrivate.PrivateWireGuard.PrivateKey)
-	if err != nil {
-		return wgtypes.Config{}, err
-	}
+func (settings *P2P) GetPorts() (int, int) {
+	return transferNetwork.CalculatePorts(settings.General.SharedWireGuard.StartPort, settings.Peer.UID, settings.Self.UID)
+}
 
-	peerPubKey, err := wgtypes.ParseKey(settings.Peer.PublicKey)
-	if err != nil {
-		return wgtypes.Config{}, err
-	}
+func (settings *P2P) GetPeerAddr() (*net.UDPAddr, error) {
+	_, peerPort := settings.GetPorts()
+	return various.ResolveHostname(settings.Peer.Hostname, peerPort)
+}
+
+func (settings *P2P) GetEndpoint(peerPort int) (*net.UDPAddr, error) {
+	return various.ResolveHostname(settings.Peer.Hostname, peerPort)
+}
+
+func (settings *P2P) ToConfig() (wgtypes.Config, error) {
+	myPort, peerPort := settings.GetPorts()
 
 	_, _, sharedNW, err := transferNetwork.GetPeerToPeerNet(settings.Self.UID, settings.Peer.UID, settings.General.Router.Subnet)
 	if err != nil {
@@ -62,12 +57,12 @@ func (settings *P2P) ToConfig(myPort, peerPort int) (wgtypes.Config, error) {
 	}
 
 	return wgtypes.Config{
-		PrivateKey:   &selfPrivateKey, // Generate a private key for this interface
+		PrivateKey:   &settings.SelfPrivate.PrivateWireGuard.PrivateKey, // Generate a private key for this interface
 		ListenPort:   &myPort,
 		ReplacePeers: true, // Replace existing peers with the provided ones
 		Peers: []wgtypes.PeerConfig{
 			{
-				PublicKey:                   peerPubKey,
+				PublicKey:                   settings.Peer.PublicKey,
 				Endpoint:                    endpoint,
 				PersistentKeepaliveInterval: settings.GetKeepalive(),
 				AllowedIPs: []net.IPNet{

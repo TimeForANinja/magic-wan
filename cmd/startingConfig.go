@@ -3,60 +3,75 @@ package main
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"magic-wan/internal/cfg"
-	"magic-wan/pkg/transferNetwork"
+	"magic-wan/pkg/various"
 	"magic-wan/pkg/wg"
 )
 
-func doStartingConfig(client *wgctrl.Client, private *cfg.PrivateConfig, shared *cfg.SharedConfig) []string {
-	configs := collectDataForInterface(private, shared)
+func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig) {
+	// build root config
+	selfPeer := various.ArrayFind(shared.SharedWireGuard.Peers, func(peer *cfg.Peer) bool { return peer.UID == private.NodeID })
+	if selfPeer == nil {
+		panic("Self peer not found")
+	}
+	globalRunningState = &state{
+		privateKey: &private.PrivateWireGuard.PrivateKey,
+		name:       selfPeer.Name,
+		startPort:  shared.SharedWireGuard.StartPort,
+		selfIDX:    private.NodeID,
+		subnet:     shared.Router.Subnet,
+		peers:      make(map[uint8]*peerState),
+	}
 
-	createdInterfaces := configureWG(client, configs)
-
-	return createdInterfaces
-}
-
-func collectDataForInterface(private *cfg.PrivateConfig, shared *cfg.SharedConfig) []cfg.P2P {
-	self, err := findSelf(private, shared)
-	panicOn(err)
-
-	peers := make([]cfg.P2P, 0)
+	// build peers
 	for _, peer := range shared.SharedWireGuard.Peers {
-		if private.NodeID == peer.UID {
-			// Skip creating a connection to self
+		if peer.UID == private.NodeID {
+			// can't peer with self
 			continue
 		}
 
-		peers = append(peers, cfg.P2P{
-			General:     shared,
-			Self:        self,
-			SelfPrivate: private,
-			Peer:        &peer,
-		})
+		newPeer := &peerState{
+			publicKey: &peer.PublicKey,
+			_parent:   globalRunningState,
+			hostname:  peer.Hostname,
+			uid:       peer.UID,
+			keepalive: peer.Keepalive,
+			ip:        nil,
+		}
+		newPeer.ip = newPeer.resolveIP()
+		onPeerAdded(newPeer)
 	}
-	return peers
 }
 
-func configureWG(client *wgctrl.Client, configs []cfg.P2P) []string {
-	createdInterfaces := make([]string, 0)
+func configureWGInterface(client *wgctrl.Client, peer *peerState) {
+	ifcName := peer.getWGName()
 
-	for _, config := range configs {
-		name := transferNetwork.BuildWireguardInterfaceName(config.Self.UID, config.Peer.UID)
-
-		// TODO: add a chack to unly create new device if it does not already exist
+	// check to only create new device if it does not already exist
+	devices, err := wg.GetDevices(client)
+	panicOn(err)
+	includes := false
+	for _, dev := range devices {
+		if dev.Name == ifcName {
+			includes = true
+			break
+		}
+	}
+	if !includes {
 		// make sure interface exists and is up
-		err := wg.CreateNewDevice(name)
+		err := wg.CreateNewDevice(ifcName)
 		panicOn(err)
-
-		// build & execute configuration
-		myPort, peerPort := transferNetwork.CalculatePorts(config.General.SharedWireGuard.StartPort, config.Self.UID, config.Peer.UID)
-		wgConfig, err := config.ToConfig(myPort, peerPort)
-		panicOn(err)
-		err = wg.UpdateDevice(client, name, wgConfig)
-		panicOn(err)
-
-		// store in list of new interfaces
-		createdInterfaces = append(createdInterfaces, name)
 	}
 
-	return createdInterfaces
+	// build & execute configuration
+	err = wg.UpdateDevice(client, ifcName, peer.BuildWGConfig())
+	panicOn(err)
+
+	// set interface IPs
+	selfIP, peerIP := peer.GetLinkIPs()
+	err = wg.BaseConfigureInterface(ifcName, selfIP, peerIP)
+	panicOn(err)
+}
+
+func unconfigureWGInterface(client *wgctrl.Client, peer *peerState) {
+	err := wg.DisableDevice(client, peer.getWGName())
+	panicOn(err)
 }

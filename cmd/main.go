@@ -1,21 +1,18 @@
 package main
 
 import (
-	"magic-wan/pkg/wg"
 	"magic-wan/rest"
 	"time"
 )
 
 func main() {
-	privateCfg, sharedCfg := ensurePrerequisites()
+	privConfig, globalConfig, globalClient := ensurePrerequisites()
+	defer globalClient.Close()
 
-	// get wireguard controller
-	client := wg.MustCreateController()
-	defer client.Close()
+	buildStateFromConfigs(privConfig, globalConfig)
 
-	createdInterfaces := doStartingConfig(client, privateCfg, sharedCfg)
-
-	startFRR(privateCfg, sharedCfg, createdInterfaces)
+	updateFRR()
+	startFRR()
 
 	// run in background, so that we can do other repeating tasks
 	go rest.StartRest()

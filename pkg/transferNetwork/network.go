@@ -54,12 +54,7 @@ func getNthAddress(network *net.IPNet, n int) (net.IP, int, error) {
 	return newIP, prefix, nil
 }
 
-func GetPeerToPeerNet(myIDX, peerIDX uint8, baseNet string) (myIP, peerIP net.IP, p2pNet *net.IPNet, err error) {
-	_, ipNet, err := net.ParseCIDR(baseNet)
-	if err != nil {
-		return
-	}
-
+func GetPeerToPeerNet(myIDX, peerIDX uint8, ipNet *net.IPNet) (myIP, peerIP net.IP, p2pNet *net.IPNet, err error) {
 	myIP, prefix, err := getNthAddress(ipNet, int(calcOffset(myIDX, peerIDX)))
 	if err != nil {
 		return

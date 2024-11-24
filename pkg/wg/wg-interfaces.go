@@ -28,6 +28,14 @@ func CreateNewDevice(ifcName string) error {
 	return nil
 }
 
+func GetDevices(client *wgctrl.Client) ([]*wgtypes.Device, error) {
+	devices, err := client.Devices()
+	if err != nil {
+		return nil, err
+	}
+	return devices, nil
+}
+
 func BaseConfigureInterface(ifcName string, selfIP, peerIP string) error {
 	commands := [][]string{
 		{"ip", "address", "add", "dev", ifcName, selfIP, "peer", peerIP},

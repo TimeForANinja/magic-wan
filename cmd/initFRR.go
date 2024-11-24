@@ -2,31 +2,33 @@ package main
 
 import (
 	"magic-wan/internal"
-	"magic-wan/internal/cfg"
 	"magic-wan/internal/myfrr"
 	"magic-wan/pkg/frr"
+	"magic-wan/pkg/various"
 )
 
-func startFRR(private *cfg.PrivateConfig, shared *cfg.SharedConfig, interfaces []string) {
-	startCfg := buildFRRBaseConfig(private, shared, interfaces)
-
-	err := myfrr.WriteFRRConfig(frr.DEFAULT_CONFIG_PATH, startCfg)
-	panicOn(err)
-
+func startFRR() {
 	// FRR was stopped as part of the baseConfigureDependencies, so we restart it now after configuration
-	err = internal.FrrService.Start()
+	err := internal.FrrService.Start()
 	panicOn(err)
 }
 
-func buildFRRBaseConfig(private *cfg.PrivateConfig, shared *cfg.SharedConfig, interfaces []string) string {
-	self, err := findSelf(private, shared)
-	panicOn(err)
+func updateFRR() {
+	frrConfigString := buildFRRBaseConfig(globalRunningState)
 
-	// TODO: get rid of the "interfaces" and parse them from the "wg#getDevices()"
+	err := myfrr.WriteFRRConfig(frr.DEFAULT_CONFIG_PATH, frrConfigString)
+	panicOn(err)
+}
+
+func buildFRRBaseConfig(state *state) string {
+	interfaces := various.ReflectMap(state.peers, func(peer *peerState) string {
+		return peer.getWGName()
+	})
+
 	startCfg := myfrr.BuildBaseConfig(
-		self.Name,
-		self.UID,
-		shared.Router.Subnet,
+		state.name,
+		state.selfIDX,
+		state.subnet,
 		interfaces,
 	)
 
