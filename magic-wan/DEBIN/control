@@ -1,6 +1,0 @@
-Package: Magic WAN
-Version: 1.0
-Architecture: arm64
-Maintainer: Tobias Kutscha <t.kutscha@yahoo.com>
-Description: Utility to setup a Magic WAN Outpoint
-Depends: frr (>= 8.4), wireguard (>= 1)

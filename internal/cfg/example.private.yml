@@ -1,0 +1,5 @@
+config-version: 1
+node-id: 2
+
+wireguard:
+  privkey: "KJuGi8mcqgmuTR7rDc0m+K3ab4LlCTd8Ns687tHpRWc="
