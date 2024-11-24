@@ -5,8 +5,9 @@ import (
 )
 
 func TestLoadSharedConfig_ExampleFile(t *testing.T) {
-	_, err := LoadSharedConfig("example.shared.yml")
+	file := "example.shared.yml"
+	_, err := LoadSharedConfig(file)
 	if err != nil {
-		t.Fatalf("Failed to load example.shared.yml: %v", err)
+		t.Fatalf("Failed to load %s: %v", file, err)
 	}
 }

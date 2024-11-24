@@ -6,7 +6,7 @@ wireguard:
   peers:
     - pubkey: "rGLzJKRTgVMVUfmq/HLl3oYumgiaOdCN1UTa1c8TTAs="
       name: "whatever"
-      uid: 0
+      uid: 1
       host: "core1.wan.example.com"
       keepalive: true
     - pubkey: "CEMi42X2n/Dsmq/XO7NSXaIPR7dy11UQ0aaGS/pBKW4="

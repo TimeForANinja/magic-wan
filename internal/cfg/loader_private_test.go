@@ -5,8 +5,9 @@ import (
 )
 
 func TestLoadPrivateConfig_ExampleFile(t *testing.T) {
-	_, err := LoadPrivateConfig("example.private.yml")
+	file := "example.private.yml"
+	_, err := LoadPrivateConfig(file)
 	if err != nil {
-		t.Fatalf("Failed to load example.private.yml: %v", err)
+		t.Fatalf("Failed to load %s: %v", file, err)
 	}
 }
