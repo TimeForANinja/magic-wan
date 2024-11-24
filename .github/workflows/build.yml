@@ -33,7 +33,7 @@ jobs:
       - name: Build for ${{ matrix.platform }}
         run: |
           mkdir -p build/${{ matrix.platform }}
-          GOARCH=${{ matrix.platform#*/ }} GOOS=linux go build -o build/${{ matrix.platform }}/magic-wan
+          GOARCH=${{ matrix.platform }} GOOS=linux go build -o build/${{ matrix.platform }}/magic-wan
 
       - name: Upload binaries
         uses: actions/upload-artifact@v3
