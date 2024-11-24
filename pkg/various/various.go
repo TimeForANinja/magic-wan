@@ -1,4 +1,4 @@
-package pkg
+package various
 
 // Helper function to compare slices
 func equal(a, b []string) bool {

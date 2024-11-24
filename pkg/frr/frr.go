@@ -1,6 +1,7 @@
 package frr
 
 import (
+	"magic-wan/pkg/various"
 	"strings"
 )
 
@@ -11,7 +12,7 @@ const (
 
 // EnableOSPF enables the OSPF daemon in the FRR daemons configuration file by setting the ospfd entry to "ospfd=yes".
 func EnableOSPF() error {
-	return GenericFileProcessor(
+	return various.GenericFileProcessor(
 		DAEMON_CONFIG_PATH,
 		func(line string) string {
 			if strings.HasPrefix(line, "ospfd=") {
