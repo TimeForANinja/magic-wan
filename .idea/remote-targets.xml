@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <targets>
+      <target name="intellij-worker01" type="ssh/sftp" uuid="c04c3188-a87a-4d58-b042-d2749d634151">
+        <config>
+          <option name="projectRootOnTarget" value="/root/magic-wan" />
+          <option name="serverName" value="root@172.16.23.11:22 key" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>
