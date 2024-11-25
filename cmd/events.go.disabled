@@ -3,16 +3,17 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/wgctrl"
+	"magic-wan/internal/configState"
 	"magic-wan/pkg/osUtil"
 	"magic-wan/pkg/wg"
 	"net"
 )
 
-var globalRunningState *state
+var globalRunningState *configState.state
 
 var globalClient *wgctrl.Client
 
-func onPeerAdded(newPeer *peerState, skipFRR bool) {
+func onPeerAdded(newPeer *configState.peerState, skipFRR bool) {
 	log.WithFields(log.Fields{
 		"peer": newPeer,
 	}).Info("onPeerAdded")
@@ -35,7 +36,7 @@ func onPeerAdded(newPeer *peerState, skipFRR bool) {
 	addPeerToCluster(newPeer)
 }
 
-func onPeerRemoved(oldPeer *peerState) {
+func onPeerRemoved(oldPeer *configState.peerState) {
 	log.WithFields(log.Fields{
 		"peer": oldPeer,
 	}).Info("onPeerRemoved")
@@ -50,7 +51,7 @@ func onPeerRemoved(oldPeer *peerState) {
 	removePeerFromCluster(oldPeer)
 }
 
-func onManualInterfaceAdded(iface *ManualInterface, skipFRR bool) {
+func onManualInterfaceAdded(iface *configState.ManualInterface, skipFRR bool) {
 	log.WithFields(log.Fields{
 		"iface": iface,
 	}).Info("onManualInterfaceAdded")
@@ -71,7 +72,7 @@ func onManualInterfaceAdded(iface *ManualInterface, skipFRR bool) {
 	}
 }
 
-func onPeerChangeIP(peer *peerState, newIP *net.UDPAddr) {
+func onPeerChangeIP(peer *configState.peerState, newIP *net.UDPAddr) {
 	log.WithFields(log.Fields{
 		"peer":  peer,
 		"newIP": newIP,

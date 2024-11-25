@@ -3,6 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"magic-wan/internal"
+	"magic-wan/internal/configState"
 	"magic-wan/internal/myfrr"
 	"magic-wan/pkg/frr"
 	"magic-wan/pkg/various"
@@ -23,12 +24,12 @@ func updateFRR() {
 	// TODO: restart / reconfigure frr
 }
 
-func buildFRRBaseConfig(state *state) string {
-	wireguardInterfaces := various.MapProject(state.peers, func(peer *peerState) string {
+func buildFRRBaseConfig(state *configState.state) string {
+	wireguardInterfaces := various.MapProject(state.peers, func(peer *configState.peerState) string {
 		return peer.getWGName()
 	})
 
-	manualInterfaces := various.ArrayProject(state.otherInterface, func(oif *ManualInterface) string {
+	manualInterfaces := various.ArrayProject(state.otherInterface, func(oif *configState.ManualInterface) string {
 		return oif.interfaceName
 	})
 	log.Debugf("Build Config for %d wg and %d manual interfaces", len(wireguardInterfaces), len(manualInterfaces))

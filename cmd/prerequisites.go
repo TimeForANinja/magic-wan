@@ -2,81 +2,87 @@ package main
 
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
-	"magic-wan/internal"
-	"magic-wan/internal/cfg"
+	"magic-wan/pkg"
 	"magic-wan/pkg/frr"
 	"magic-wan/pkg/osUtil"
 	"magic-wan/pkg/wg"
 )
 
-func ensurePrerequisites() (*cfg.PrivateConfig, *cfg.SharedConfig, *wgctrl.Client) {
-	checkDependencies()
+func ensurePrerequisites() (*wgctrl.Client, error) {
+	err := checkDependencies()
+	if err != nil {
+		return nil, err
+	}
 
-	baseConfigureDependencies()
-
-	privateCfg, sharedCfg, err := loadSettings()
-	panicOn(err)
+	err = baseConfigureRouting()
+	if err != nil {
+		return nil, err
+	}
 
 	// get wireguard controller
 	wgClient := wg.MustCreateController()
 
 	// as a preparation all existing wg interfaces will be removed
-	removeAllWGDevices(wgClient)
+	err = removeAllWGDevices(wgClient)
+	if err != nil {
+		return nil, err
+	}
 
 	// register self as a service to auto-start
-	service, err := osUtil.InstallAsService()
-	panicOn(err)
-	err = service.Enable()
-	panicOn(err)
+	/*
+		service, err := osUtil.InstallAsService()
+		panicOn(err)
+		err = service.Enable()
+		panicOn(err)
+	*/
 
-	return privateCfg, sharedCfg, wgClient
+	return wgClient, nil
 }
 
-func removeAllWGDevices(client *wgctrl.Client) {
+func removeAllWGDevices(client *wgctrl.Client) error {
 	devices, err := wg.GetDevices(client)
-	panicOn(err)
+	if err != nil {
+		return err
+	}
 
 	for _, device := range devices {
 		err := wg.RemoveDevice(device.Name)
-		panicOn(err)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func baseConfigureDependencies() {
+func baseConfigureRouting() error {
 	err := osUtil.EnableIPV4Routing()
-	panicOn(err)
+	if err != nil {
+		return err
+	}
 
 	// frr is default-enabled after installation so let's disable it
-	err = internal.FrrService.Disable()
-	panicOn(err)
-	err = internal.FrrService.Stop()
-	panicOn(err)
+	err = pkg.FrrService.Disable()
+	if err != nil {
+		return err
+	}
+	err = pkg.FrrService.Stop()
+	if err != nil {
+		return err
+	}
 
-	err = frr.EnableOSPF()
-	panicOn(err)
+	// enable the ospf daemon inside the frr library
+	return frr.EnableOSPF()
 }
 
-func checkDependencies() {
+func checkDependencies() error {
 	if !osUtil.IsLinuxArchitecture() {
 		panic("Unsupported architecture")
 	}
 
-	err := osUtil.InstallPackages([]string{
+	return osUtil.InstallPackages([]string{
 		"wireguard",
 		"frr",
+		"frr-pythontools",
 	})
-	panicOn(err)
-}
-
-func loadSettings() (*cfg.PrivateConfig, *cfg.SharedConfig, error) {
-	shared, err := cfg.LoadSharedConfig("shared.yml")
-	if err != nil {
-		return nil, nil, err
-	}
-	private, err := cfg.LoadPrivateConfig("private.yml")
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return private, shared, nil
 }

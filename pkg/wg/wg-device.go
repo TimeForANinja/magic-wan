@@ -6,8 +6,14 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"os/exec"
-	"strings"
 )
+
+func MustConfigureDevice(client *wgctrl.Client, ifcName string, config wgtypes.Config) {
+	err := client.ConfigureDevice(ifcName, config)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to configure WireGuard interface %s: %v", ifcName, err))
+	}
+}
 
 func UpdateDevice(client *wgctrl.Client, ifcName string, config wgtypes.Config) error {
 	// Apply the configuration to the interface
@@ -36,23 +42,6 @@ func GetDevices(client *wgctrl.Client) ([]*wgtypes.Device, error) {
 	return devices, nil
 }
 
-func BaseConfigureInterface(ifcName string, selfIP, peerIP string) error {
-	commands := [][]string{
-		{"ip", "address", "add", "dev", ifcName, selfIP, "peer", peerIP},
-		{"ip", "link", "set", "up", "dev", ifcName},
-	}
-
-	for _, cmd := range commands {
-		command := exec.Command(cmd[0], cmd[1:]...)
-		cmdOutput, err := command.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("failed to run command '%s': %w, output: %s", strings.Join(cmd, " "), err, string(cmdOutput))
-		}
-	}
-
-	return nil
-}
-
 func DisableDevice(client *wgctrl.Client, ifcName string) error {
 	zero := 0
 	config := wgtypes.Config{
@@ -74,19 +63,6 @@ func RemoveDevice(ifcName string) error {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to remove wg interface \"%s\": %w, output: %s", ifcName, err, string(output))
-	}
-	return nil
-}
-
-func startService(service string) error {
-	cmd := exec.Command("systemctl", "enable", "--now", service)
-	log.WithFields(log.Fields{
-		"cmd":     "systemctl enable --now <service>",
-		"service": service,
-	}).Debug("Calling systemctl")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to enable and start \"%s\" service: %w, output: %s", service, err, string(output))
 	}
 	return nil
 }

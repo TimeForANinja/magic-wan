@@ -3,7 +3,6 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -32,14 +31,16 @@ func (hook *WriterHook) Levels() []log.Level {
 	return hook.LogLevels
 }
 
-func configureLogging() *os.File {
+func configureLogging() (*os.File, error) {
 	// Configure logging to file
 	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	panicOn(err)
+	if err != nil {
+		return nil, err
+	}
 
 	// prep global logger
 	log.SetLevel(log.DebugLevel)
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
 	})
@@ -67,5 +68,5 @@ func configureLogging() *os.File {
 		},
 	})
 
-	return file
+	return file, nil
 }

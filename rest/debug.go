@@ -40,7 +40,7 @@ const debugPageTemplate = `
 	</body>
 	</html>`
 
-func DebugV1Handler(w http.ResponseWriter, r *http.Request) {
+func debugV1Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 

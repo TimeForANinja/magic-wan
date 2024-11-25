@@ -12,6 +12,7 @@ func Debug() (string, error) {
 		"show ip ospf neighbor",
 		"show ip ospf route",
 		"show ip ospf interface",
+		"show running-config",
 	}
 	var output bytes.Buffer
 

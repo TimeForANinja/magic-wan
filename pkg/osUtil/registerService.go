@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-const WAN_SERVICE = "magic-wan"
+const WanServiceName = "magic-wan"
 
 func InstallAsService() (*Service, error) {
 	absPath, err := filepath.Abs(os.Args[0])
@@ -14,11 +14,11 @@ func InstallAsService() (*Service, error) {
 		return nil, fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	err = installAsService(WAN_SERVICE, absPath)
+	err = installAsService(WanServiceName, absPath)
 	if err != nil {
 		return nil, err
 	}
-	return &Service{Name: WAN_SERVICE}, nil
+	return &Service{Name: WanServiceName}, nil
 }
 
 func installAsService(serviceName, executablePath string) error {
@@ -42,7 +42,8 @@ WantedBy=multi-user.target
 	serviceContent = fmt.Sprintf(serviceContent, executablePath)
 
 	// Write the service file to the systemd directory
-	if err := os.WriteFile(servicePath, []byte(serviceContent), 0644); err != nil { //nolint:gosec
+	err := WriteFile(servicePath, serviceContent)
+	if err != nil {
 		return fmt.Errorf("failed to write service file: %w", err)
 	}
 

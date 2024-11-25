@@ -16,36 +16,41 @@ type vote struct {
 	time  time.Time
 }
 
-func UpdateVotes(v vote) {
+func (c *Cluster) updateVotes(newVote *vote) {
+	log.WithFields(log.Fields{
+		"vote":  newVote,
+		"votes": c.votes,
+	}).Debugf("Updating Votes")
+
 	// remove any old votes
-	votes := various.ArrayFilter(globalVotes, func(v vote) bool {
-		return v.voter.ip != v.vote.ip
+	votes := various.ArrayFilter(c.votes, func(oldVote *vote) bool {
+		return newVote.voter.ip != oldVote.voter.ip
 	})
 
-	// Append the new vote.
-	votes = append(votes, v)
+	// merge the new vote with the filtered votes, and store in globalvotes
+	c.votes = append(votes, newVote)
 
-	updateMaster()
+	c.updateMaster()
 }
 
-func updateMaster() {
-	newMaster := calcMaster(globalPeers, MaxVoteAge)
-	if globalMaster == newMaster {
+func (c *Cluster) updateMaster() {
+	newMaster := c.calcMaster(c.peers, MaxVoteAge)
+	if c.master == newMaster {
 		// no change, so no action required
 		return
 	}
 
 	log.WithFields(log.Fields{
 		"new": newMaster,
-		"old": globalMaster,
+		"old": c.master,
 	}).Infof("New Cluster Master")
 
-	globalMaster = newMaster
+	c.master = newMaster
 }
 
-func calcMaster(knownPeers []*votingPeer, maxAge time.Duration) *votingPeer {
+func (c *Cluster) calcMaster(knownPeers []*votingPeer, maxAge time.Duration) *votingPeer {
 	// Filter out votes older than maxAge
-	validVotes := various.ArrayFilter(globalVotes, func(v vote) bool {
+	validVotes := various.ArrayFilter(c.votes, func(v *vote) bool {
 		return time.Since(v.time) <= maxAge
 	})
 
@@ -62,9 +67,9 @@ func calcMaster(knownPeers []*votingPeer, maxAge time.Duration) *votingPeer {
 	return candidates[0]
 }
 
-func masterCandidate(maxAge time.Duration) []*votingPeer {
+func (c *Cluster) masterCandidate(maxAge time.Duration) []*votingPeer {
 	// Filter out votes older than maxAge
-	validVotes := various.ArrayFilter(globalVotes, func(v vote) bool {
+	validVotes := various.ArrayFilter(c.votes, func(v *vote) bool {
 		return time.Since(v.time) <= maxAge
 	})
 
@@ -73,7 +78,7 @@ func masterCandidate(maxAge time.Duration) []*votingPeer {
 	return candidates
 }
 
-func calcTopCandidates(votes []vote) []*votingPeer {
+func calcTopCandidates(votes []*vote) []*votingPeer {
 	// Count votes per peer
 	voteCounts := make(map[*votingPeer]int)
 	for _, v := range votes {

@@ -7,34 +7,17 @@ import (
 	"os/exec"
 )
 
-// TODO: check which fields are actually required
+// IMPROVEMENT: check which fields are actually required
 type AddrInfo struct {
-	Family            string `json:"family"`
-	Local             string `json:"local"`
-	Prefixlen         int    `json:"prefixlen"`
-	Scope             string `json:"scope"`
-	Label             string `json:"label,omitempty"`
-	ValidLifeTime     int64  `json:"valid_life_time"`
-	PreferredLifeTime int64  `json:"preferred_life_time"`
-	Noprefixroute     bool   `json:"noprefixroute,omitempty"`
-	Broadcast         string `json:"broadcast,omitempty"`
-	Dynamic           bool   `json:"dynamic,omitempty"`
+	Family    string `json:"family"`
+	Local     string `json:"local"`
+	Prefixlen int    `json:"prefixlen"`
 }
 type NetworkInterface struct {
-	Ifindex     int         `json:"ifindex"`
-	Ifname      string      `json:"ifname"`
-	Flags       []string    `json:"flags"`
-	Mtu         int         `json:"mtu"`
-	Qdisc       string      `json:"qdisc"`
-	Operstate   string      `json:"operstate"`
-	Group       string      `json:"group"`
-	Txqlen      int         `json:"txqlen"`
-	LinkType    string      `json:"link_type"`
-	Address     string      `json:"address"`
-	Broadcast   string      `json:"broadcast"`
-	AddrInfo    []*AddrInfo `json:"addr_info"`
-	LinkIndex   int         `json:"link_index,omitempty"`
-	LinkNetnsid int         `json:"link_netnsid,omitempty"`
+	Ifname    string      `json:"ifname"`
+	Address   string      `json:"address"`
+	Broadcast string      `json:"broadcast"`
+	AddrInfo  []*AddrInfo `json:"addr_info"`
 }
 
 func GetInterfaces() ([]*NetworkInterface, error) {
@@ -72,6 +55,15 @@ func InterfaceHasAddress(interfaceName string, ip string) bool {
 
 func SetInterfaceAddress(interfaceName string, ip string) error {
 	cmd := exec.Command("ip", "addr", "add", ip, "dev", interfaceName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to set ip addresses: %w, output: %s", err, string(output))
+	}
+	return nil
+}
+
+func SetInterfaceUp(interfaceName string) error {
+	cmd := exec.Command("ip", "link", "set", "dev", interfaceName, "up")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to set ip addresses: %w, output: %s", err, string(output))

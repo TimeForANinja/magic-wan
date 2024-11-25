@@ -77,7 +77,7 @@ func (s *Service) Disable() error {
 }
 
 func (s *Service) Reload() error {
-	// TODO: check if this works well for frr / ospfd
+	// IMPROVMENT: check if this works well for frr / ospfd
 	cmd := exec.Command("systemctl", "reload", s.Name)
 	log.WithFields(log.Fields{
 		"cmd":     "systemctl reload <service>",
@@ -91,7 +91,7 @@ func (s *Service) Reload() error {
 }
 
 func (s *Service) GetStatus() (string, error) {
-	// TODO: check if this works and what possible values are
+	// IMPROVMENT: check if this works and what possible values are
 	cmd := exec.Command("systemctl", "show", "--no-pager", s.Name)
 	log.WithFields(log.Fields{
 		"cmd":     "systemctl show --no-pager <service>",

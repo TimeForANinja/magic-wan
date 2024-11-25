@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func WGKeyGenV1Handler(w http.ResponseWriter, r *http.Request) {
+func wireguardKeyGenV1Handler(w http.ResponseWriter, r *http.Request) {
 	privkey, pubkey, err := wg.GenerateKeyPair()
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)

@@ -2,42 +2,53 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"magic-wan/internal/cfg"
+	"golang.zx2c4.com/wireguard/wgctrl"
+	"magic-wan/internal/appState"
+	"magic-wan/pkg/cluster"
 	"magic-wan/rest"
-	"magic-wan/rest/cluster"
-	"time"
 )
 
 func main() {
 	// configure logging and defer closing the logfile
-	defer configureLogging().Close()
+	logfile, err := configureLogging()
+	panicOn(err)
+	defer logfile.Close()
+	log.Info("Initialised Logging")
 
-	var privateConfig *cfg.PrivateConfig
-	var sharedConfig *cfg.SharedConfig
-	privateConfig, sharedConfig, globalClient = ensurePrerequisites()
-	defer globalClient.Close()
+	var wgClient *wgctrl.Client
+	wgClient, err = ensurePrerequisites()
+	panicOn(err)
+	defer wgClient.Close()
 	log.Info("Checked Prerequisites")
 
-	// start cluster before build state
-	// the cluster peers will then get auto-populated
-	cluster.InitCluster()
-
 	// build initial state from config
-	buildStateFromConfigs(privateConfig, sharedConfig)
+	var appState *configState.ApplicationState
+	appState, err = initState(wgClient)
+	panicOn(err)
 	log.Info("Build Initial State")
 
-	updateFRR()
-	// TODO: check if "updateFRR" which includes a restart is enough
-	startFRR()
+	// setup frr
+	frrConfig := appState.DeriveFRRState()
+	err = frrConfig.StartFRR()
+	panicOn(err)
+	err = frrConfig.PushToFrr()
+	panicOn(err)
 	log.Info("Started FRR")
 
-	// run in background, so that we can do other repeating tasks
-	go rest.StartRest()
+	// prepare cluster engine
+	var configCluster *cluster.Cluster
+	configCluster, err = appState.DeriveCluster()
+	panicOn(err)
+	log.Info("Initialised HA Cluster")
 
-	// Until the end of time all we now do is check the DNS
-	ticker := time.NewTicker(time.Minute * 1)
-	defer ticker.Stop()
-	for range ticker.C {
-		checkDNS()
+	// start background tasks
+	failChannel := make(chan error, 1)
+	go rest.StartRest(configCluster, failChannel)
+	go startDNSChecks(appState)
+
+	// wait for failChannel to return an error
+	select {
+	case err = <-failChannel:
+		panicOn(err)
 	}
 }
