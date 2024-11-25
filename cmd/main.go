@@ -25,7 +25,9 @@ func main() {
 	go rest.StartRest()
 
 	// Until the end of time all we now do is check the DNS
-	for range time.Tick(time.Minute * 1) {
+	ticker := time.NewTicker(time.Minute * 1)
+	defer ticker.Stop()
+	for range ticker.C {
 		checkDNS()
 	}
 }
