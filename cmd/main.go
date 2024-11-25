@@ -1,6 +1,7 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"magic-wan/rest"
 	"time"
 )
@@ -8,11 +9,14 @@ import (
 func main() {
 	privConfig, globalConfig, globalClient := ensurePrerequisites()
 	defer globalClient.Close()
+	log.Info("Checked Prerequisites")
 
 	buildStateFromConfigs(privConfig, globalConfig)
+	log.Info("Build Initial State")
 
 	updateFRR()
 	startFRR()
+	log.Info("Started FRR")
 
 	// run in background, so that we can do other repeating tasks
 	go rest.StartRest()

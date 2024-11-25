@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"html/template"
 	"magic-wan/pkg/frr"
 	"magic-wan/pkg/wg"
@@ -18,7 +19,7 @@ func StartRest() error {
 		ReadHeaderTimeout: 3 * time.Second,
 	}
 
-	fmt.Printf("Starting server on :%d...\n", port)
+	log.Info(fmt.Sprintf("Starting server on :%d...\n", port))
 	err := server.ListenAndServe()
 	return err
 }

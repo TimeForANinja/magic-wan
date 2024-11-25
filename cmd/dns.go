@@ -1,12 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
+import log "github.com/sirupsen/logrus"
 
 func checkDNS() {
-	fmt.Println(time.Now().Format("2006-01-02 15:04:05"), "Checking DNS")
+	log.Info("Checking for DNS Changes")
 
 	for _, pState := range globalRunningState.peers {
 		// fetch new ip
