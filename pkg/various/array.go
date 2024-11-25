@@ -25,3 +25,11 @@ func ReflectMap[T any, J comparable, F any](m map[J]T, mapper func(T) F) []F {
 	}
 	return result
 }
+
+func ReflectArray[T any, F any](m []T, mapper func(T) F) []F {
+	result := make([]F, 0, len(m))
+	for _, item := range m {
+		result = append(result, mapper(item))
+	}
+	return result
+}
