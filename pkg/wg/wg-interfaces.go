@@ -69,6 +69,15 @@ func DisableDevice(client *wgctrl.Client, ifcName string) error {
 	return err
 }
 
+func RemoveDevice(ifcName string) error {
+	cmd := exec.Command("ip", "link", "del", "dev", ifcName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to remove wg interface \"%s\": %w, output: %s", ifcName, err, string(output))
+	}
+	return nil
+}
+
 func startService(service string) error {
 	cmd := exec.Command("systemctl", "enable", "--now", service)
 	output, err := cmd.CombinedOutput()

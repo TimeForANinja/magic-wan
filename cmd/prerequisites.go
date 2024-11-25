@@ -37,7 +37,7 @@ func removeAllWGDevices(client *wgctrl.Client) {
 	panicOn(err)
 
 	for _, device := range devices {
-		err := wg.DisableDevice(client, device.Name)
+		err := wg.RemoveDevice(device.Name)
 		panicOn(err)
 	}
 }
