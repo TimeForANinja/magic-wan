@@ -9,6 +9,9 @@ import (
 )
 
 func main() {
+	// configure logging and defer closing the logfile
+	defer configureLogging().Close()
+
 	var privateConfig *cfg.PrivateConfig
 	var sharedConfig *cfg.SharedConfig
 	privateConfig, sharedConfig, globalClient = ensurePrerequisites()
