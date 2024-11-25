@@ -21,11 +21,11 @@ func updateFRR() {
 }
 
 func buildFRRBaseConfig(state *state) string {
-	wireguardInterfaces := various.ReflectMap(state.peers, func(peer *peerState) string {
+	wireguardInterfaces := various.MapProject(state.peers, func(peer *peerState) string {
 		return peer.getWGName()
 	})
 
-	manualInterfaces := various.ReflectArray(state.otherInterface, func(oif *ManualInterface) string {
+	manualInterfaces := various.ArrayProject(state.otherInterface, func(oif *ManualInterface) string {
 		return oif.interfaceName
 	})
 

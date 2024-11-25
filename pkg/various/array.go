@@ -18,7 +18,7 @@ func ArrayIncludes[T any](array []T, checker func(T) bool) bool {
 	return false
 }
 
-func ReflectMap[T any, J comparable, F any](m map[J]T, mapper func(T) F) []F {
+func ArrayProject[T any, F any](m []T, mapper func(T) F) []F {
 	result := make([]F, 0, len(m))
 	for _, item := range m {
 		result = append(result, mapper(item))
@@ -26,10 +26,12 @@ func ReflectMap[T any, J comparable, F any](m map[J]T, mapper func(T) F) []F {
 	return result
 }
 
-func ReflectArray[T any, F any](m []T, mapper func(T) F) []F {
-	result := make([]F, 0, len(m))
+func ArrayFilter[T any](m []T, checker func(T) bool) []T {
+	result := make([]T, 0, len(m))
 	for _, item := range m {
-		result = append(result, mapper(item))
+		if checker(item) {
+			result = append(result, item)
+		}
 	}
 	return result
 }
