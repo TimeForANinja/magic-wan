@@ -4,6 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
+	"strings"
 )
 
 type Service struct {
@@ -87,4 +88,26 @@ func (s *Service) Reload() error {
 		return fmt.Errorf("failed to disable %s service: %w, output: %s", s.Name, err, string(output))
 	}
 	return nil
+}
+
+func (s *Service) GetStatus() (string, error) {
+	// TODO: check if this works and what possible values are
+	cmd := exec.Command("systemctl", "show", "--no-pager", s.Name)
+	log.WithFields(log.Fields{
+		"cmd":     "systemctl show --no-pager <service>",
+		"service": s.Name,
+	}).Debug("Calling systemctl")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("failed to get status of %s service: %w, output: %s", s.Name, err, string(output))
+	}
+	// Extract ActiveState from output
+	var activeState string
+	for _, line := range strings.Split(string(output), "\n") {
+		if strings.HasPrefix(line, "ActiveState=") {
+			activeState = strings.TrimPrefix(line, "ActiveState=")
+			break
+		}
+	}
+	return activeState, nil
 }
