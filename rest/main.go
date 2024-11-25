@@ -11,6 +11,7 @@ import (
 func StartRest() error {
 	http.HandleFunc("/api/v1/debug", DebugV1Handler)
 	http.HandleFunc("/api/v1/cluster/vote", cluster.VoteV1Handler)
+	http.HandleFunc("/api/v1/wgkey", WGKeyGenV1Handler)
 
 	port := 80
 	server := &http.Server{
