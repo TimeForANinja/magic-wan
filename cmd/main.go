@@ -18,6 +18,7 @@ func main() {
 	log.Info("Build Initial State")
 
 	updateFRR()
+	// TODO: check if "updateFRR" which includes a restart is enough
 	startFRR()
 	log.Info("Started FRR")
 

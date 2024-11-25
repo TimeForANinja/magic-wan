@@ -12,7 +12,7 @@ var globalRunningState *state
 
 var globalClient *wgctrl.Client
 
-func onPeerAdded(newPeer *peerState) {
+func onPeerAdded(newPeer *peerState, skipFRR bool) {
 	log.WithFields(log.Fields{
 		"peer": newPeer,
 	}).Info("onPeerAdded")
@@ -24,8 +24,11 @@ func onPeerAdded(newPeer *peerState) {
 	// call action to add
 	configureWGInterface(globalClient, newPeer)
 
-	// update frr
-	updateFRR()
+	// update frr if requested
+	if !skipFRR {
+		// update frr
+		updateFRR()
+	}
 }
 
 func onPeerRemoved(oldPeer *peerState) {

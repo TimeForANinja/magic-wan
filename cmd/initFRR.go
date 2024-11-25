@@ -18,6 +18,8 @@ func updateFRR() {
 
 	err := myfrr.WriteFRRConfig(frr.DEFAULT_CONFIG_PATH, frrConfigString)
 	panicOn(err)
+
+	// TODO: restart / reconfigure frr
 }
 
 func buildFRRBaseConfig(state *state) string {

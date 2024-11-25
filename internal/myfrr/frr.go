@@ -14,7 +14,8 @@ func WriteFRRConfig(configFilePath string, configContent string) error {
 	}
 	defer file.Close()
 
-	if _, err := file.WriteString(configContent); err != nil {
+	_, err = file.WriteString(configContent)
+	if err != nil {
 		return fmt.Errorf("failed to write to FRR config file: %w", err)
 	}
 

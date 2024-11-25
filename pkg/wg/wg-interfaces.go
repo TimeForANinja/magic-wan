@@ -2,9 +2,9 @@ package wg
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"log"
 	"os/exec"
 	"strings"
 )
@@ -15,7 +15,7 @@ func UpdateDevice(client *wgctrl.Client, ifcName string, config wgtypes.Config) 
 	if err != nil {
 		return err
 	}
-	log.Printf("Successfully configured WireGuard interface %s", ifcName)
+	log.Infof("Successfully configured WireGuard interface %s", ifcName)
 	return nil
 }
 

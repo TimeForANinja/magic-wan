@@ -3,6 +3,7 @@ package cluster
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"magic-wan/pkg/various"
 	"net/http"
 	"time"
@@ -14,12 +15,14 @@ func VoteV1Handler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&msg)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		log.Debugf("Invalid request body: %w", err)
 		return
 	}
 
 	err = parseVote(r.RemoteAddr, msg.Vote)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Invalid vote", http.StatusBadRequest)
+		log.Debugf("Invalid vote: %w", err)
 		return
 	}
 

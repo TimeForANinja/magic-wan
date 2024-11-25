@@ -39,7 +39,7 @@ func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig)
 			_parent: nil,
 			ip:      nil,
 		}
-		onPeerAdded(newPeer)
+		onPeerAdded(newPeer, true)
 	}
 
 	// build manual peers
