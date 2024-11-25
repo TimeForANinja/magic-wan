@@ -45,14 +45,18 @@ func (p *peerState) BuildWGConfig() wgtypes.Config {
 }
 
 func (p *peerState) GetLinkNetwork() *net.IPNet {
-	_, _, nw, err := transferNetwork.GetPeerToPeerNet(p._parent.selfIDX, p.uid, p._parent.subnet)
-	panicOn(err)
+	_, _, nw := p.GetConnectionTo(p._parent.selfIDX)
 	return nw
 }
 
-func (p *peerState) GetLinkIPs() (string, string) {
-	me, peer, _, err := transferNetwork.GetPeerToPeerNet(p._parent.selfIDX, p.uid, p._parent.subnet)
+func (p *peerState) GetConnectionTo(node uint8) (net.IP, net.IP, *net.IPNet) {
+	me, peer, transferNet, err := transferNetwork.GetPeerToPeerNet(node, p.uid, p._parent.subnet)
 	panicOn(err)
+	return me, peer, transferNet
+}
+
+func (p *peerState) GetLinkIPs() (string, string) {
+	me, peer, _ := p.GetConnectionTo(p._parent.selfIDX)
 	return me.String(), peer.String()
 }
 

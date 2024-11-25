@@ -24,11 +24,12 @@ func onPeerAdded(newPeer *peerState, skipFRR bool) {
 	// call action to add
 	configureWGInterface(globalClient, newPeer)
 
-	// update frr if requested
+	// update other modules (if requested)
 	if !skipFRR {
 		// update frr
 		updateFRR()
 	}
+	addPeerToCluster(newPeer)
 }
 
 func onPeerRemoved(oldPeer *peerState) {
@@ -41,8 +42,9 @@ func onPeerRemoved(oldPeer *peerState) {
 	// call action to remove
 	unconfigureWGInterface(globalClient, oldPeer)
 
-	// update frr
+	// update other modules
 	updateFRR()
+	removePeerFromCluster(oldPeer)
 }
 
 func onManualInterfaceAdded(iface *ManualInterface) {

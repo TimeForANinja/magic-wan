@@ -11,7 +11,7 @@ type voteMessage struct {
 	Vote string `json:"vote"`
 }
 
-func getMasterToVote() *VotingPeer {
+func getMasterToVote() *votingPeer {
 	// If we already have a master it's best to stick with it
 	if HasMaster() {
 		return GetMaster()
@@ -42,7 +42,7 @@ func callVote() {
 	}
 }
 
-func sendVote(peer *VotingPeer, voteMessage voteMessage) {
+func sendVote(peer *votingPeer, voteMessage voteMessage) {
 	url := "http://" + peer.ip + "/api/v1/vote"
 
 	jsonData, err := json.Marshal(voteMessage)

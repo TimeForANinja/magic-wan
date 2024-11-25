@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-type VotingPeer struct {
+type votingPeer struct {
 	ip string
 }
 
 type vote struct {
-	voter *VotingPeer
-	vote  *VotingPeer
+	voter *votingPeer
+	vote  *votingPeer
 	time  time.Time
 }
 
@@ -31,11 +31,7 @@ func updateMaster() {
 	globalMaster = calcMaster(globalPeers, MaxVoteAge)
 }
 
-func AddPeer(p VotingPeer) {
-	globalPeers = append(globalPeers, &p)
-}
-
-func calcMaster(knownPeers []*VotingPeer, maxAge time.Duration) *VotingPeer {
+func calcMaster(knownPeers []*votingPeer, maxAge time.Duration) *votingPeer {
 	// Filter out votes older than maxAge
 	validVotes := various.ArrayFilter(globalVotes, func(v vote) bool {
 		return time.Since(v.time) <= maxAge
@@ -54,7 +50,7 @@ func calcMaster(knownPeers []*VotingPeer, maxAge time.Duration) *VotingPeer {
 	return candidates[0]
 }
 
-func masterCandidate(maxAge time.Duration) []*VotingPeer {
+func masterCandidate(maxAge time.Duration) []*votingPeer {
 	// Filter out votes older than maxAge
 	validVotes := various.ArrayFilter(globalVotes, func(v vote) bool {
 		return time.Since(v.time) <= maxAge
@@ -65,9 +61,9 @@ func masterCandidate(maxAge time.Duration) []*VotingPeer {
 	return candidates
 }
 
-func calcTopCandidates(votes []vote) []*VotingPeer {
+func calcTopCandidates(votes []vote) []*votingPeer {
 	// Count votes per peer
-	voteCounts := make(map[*VotingPeer]int)
+	voteCounts := make(map[*votingPeer]int)
 	for _, v := range votes {
 		voteCounts[v.vote]++
 	}

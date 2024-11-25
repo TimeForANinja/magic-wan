@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"magic-wan/internal/cfg"
 	"magic-wan/rest"
+	"magic-wan/rest/cluster"
 	"time"
 )
 
@@ -14,6 +15,11 @@ func main() {
 	defer globalClient.Close()
 	log.Info("Checked Prerequisites")
 
+	// start cluster before build state
+	// the cluster peers will then get auto-populated
+	cluster.InitCluster()
+
+	// build initial state from config
 	buildStateFromConfigs(privateConfig, sharedConfig)
 	log.Info("Build Initial State")
 

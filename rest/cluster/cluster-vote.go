@@ -15,14 +15,14 @@ func VoteV1Handler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&msg)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		log.Debugf("Invalid request body: %w", err)
+		log.Debugf("Invalid request body: %v", err)
 		return
 	}
 
 	err = parseVote(r.RemoteAddr, msg.Vote)
 	if err != nil {
 		http.Error(w, "Invalid vote", http.StatusBadRequest)
-		log.Debugf("Invalid vote: %w", err)
+		log.Debugf("Invalid vote: %v", err)
 		return
 	}
 
@@ -32,10 +32,10 @@ func VoteV1Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseVote(from, to string) error {
-	fromPeer := various.ArrayFind(globalPeers, func(p *VotingPeer) bool {
+	fromPeer := various.ArrayFind(globalPeers, func(p *votingPeer) bool {
 		return p.ip == from
 	})
-	toPeer := various.ArrayFind(globalPeers, func(p *VotingPeer) bool {
+	toPeer := various.ArrayFind(globalPeers, func(p *votingPeer) bool {
 		return p.ip == to
 	})
 	if fromPeer == nil || toPeer == nil {
