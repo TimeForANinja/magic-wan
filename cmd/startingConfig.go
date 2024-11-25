@@ -31,13 +31,13 @@ func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig)
 
 		newPeer := &peerState{
 			publicKey: &peer.PublicKey,
-			_parent:   globalRunningState,
 			hostname:  peer.Hostname,
 			uid:       peer.UID,
 			keepalive: peer.Keepalive,
-			ip:        nil,
+			// populated in onPeerAdded
+			_parent: nil,
+			ip:      nil,
 		}
-		newPeer.ip = newPeer.resolveIP()
 		onPeerAdded(newPeer)
 	}
 }

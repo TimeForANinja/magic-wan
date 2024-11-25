@@ -17,6 +17,7 @@ func onPeerAdded(newPeer *peerState) {
 	}).Info("onPeerAdded")
 	// update state
 	newPeer._parent = globalRunningState
+	newPeer.ip = newPeer.resolveIP()
 	globalRunningState.peers[newPeer.uid] = newPeer
 
 	// call action to add
