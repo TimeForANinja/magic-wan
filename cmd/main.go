@@ -2,16 +2,19 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
+	"magic-wan/internal/cfg"
 	"magic-wan/rest"
 	"time"
 )
 
 func main() {
-	privConfig, globalConfig, globalClient := ensurePrerequisites()
+	var privateConfig *cfg.PrivateConfig
+	var sharedConfig *cfg.SharedConfig
+	privateConfig, sharedConfig, globalClient = ensurePrerequisites()
 	defer globalClient.Close()
 	log.Info("Checked Prerequisites")
 
-	buildStateFromConfigs(privConfig, globalConfig)
+	buildStateFromConfigs(privateConfig, sharedConfig)
 	log.Info("Build Initial State")
 
 	updateFRR()
