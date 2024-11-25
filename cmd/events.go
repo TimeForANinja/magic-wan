@@ -3,6 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"golang.zx2c4.com/wireguard/wgctrl"
+	"magic-wan/pkg/osUtil"
 	"magic-wan/pkg/wg"
 	"net"
 )
@@ -39,6 +40,18 @@ func onPeerRemoved(oldPeer *peerState) {
 
 	// update frr
 	updateFRR()
+}
+
+func onManualInterfaceAdded(iface *ManualInterface) {
+	log.WithFields(log.Fields{
+		"iface": iface,
+	}).Info("onManualInterfaceAdded")
+
+	// add IP to ip if not already there
+	if !osUtil.InterfaceHasAddress(iface.interfaceName, iface.ip.String()) {
+		err := osUtil.SetInterfaceAddress(iface.interfaceName, iface.ip.String())
+		panicOn(err)
+	}
 }
 
 func onPeerChangeIP(peer *peerState, newIP *net.UDPAddr) {

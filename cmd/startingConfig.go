@@ -3,6 +3,7 @@ package main
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"magic-wan/internal/cfg"
+	"magic-wan/pkg/transferNetwork"
 	"magic-wan/pkg/various"
 	"magic-wan/pkg/wg"
 )
@@ -22,7 +23,7 @@ func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig)
 		peers:      make(map[uint8]*peerState),
 	}
 
-	// build peers
+	// build wireguard peers
 	for _, peer := range shared.SharedWireGuard.Peers {
 		if peer.UID == private.NodeID {
 			// can't peer with self
@@ -40,6 +41,16 @@ func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig)
 		}
 		onPeerAdded(newPeer)
 	}
+
+	// build manual peers
+	// since 0 as a unique id is not allowed, we can use those ranges as global unique identifiers for each node.
+	loopbackIP, _, _, err := transferNetwork.GetPeerToPeerNet(private.NodeID, 0, shared.Router.Subnet)
+	panicOn(err)
+	onManualInterfaceAdded(&ManualInterface{
+		interfaceName: "lo",
+		ip:            &loopbackIP,
+		ospfPassive:   true,
+	})
 }
 
 func configureWGInterface(client *wgctrl.Client, peer *peerState) {

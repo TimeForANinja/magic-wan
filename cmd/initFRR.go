@@ -21,15 +21,20 @@ func updateFRR() {
 }
 
 func buildFRRBaseConfig(state *state) string {
-	interfaces := various.ReflectMap(state.peers, func(peer *peerState) string {
+	wireguardInterfaces := various.ReflectMap(state.peers, func(peer *peerState) string {
 		return peer.getWGName()
+	})
+
+	manualInterfaces := various.ReflectArray(state.otherInterface, func(oif *ManualInterface) string {
+		return oif.interfaceName
 	})
 
 	startCfg := myfrr.BuildBaseConfig(
 		state.name,
 		state.selfIDX,
 		state.subnet,
-		interfaces,
+		wireguardInterfaces,
+		manualInterfaces,
 	)
 
 	return startCfg

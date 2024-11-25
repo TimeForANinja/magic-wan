@@ -5,14 +5,29 @@ import (
 	"net"
 )
 
-func BuildBaseConfig(selfName string, uid uint8, network *net.IPNet, interfaces []string) string {
-	interfaceConfig := ""
-	for _, iface := range interfaces {
-		interfaceConfig += fmt.Sprintf(`interface %s
+func buildInterfaceConfig(iface string, passive bool) string {
+	if !passive {
+		return fmt.Sprintf(`interface %s
  ip router ospf area 0.0.0.0
 exit
 !
 `, iface)
+	}
+	return fmt.Sprintf(`interface %s
+ ip ospf passive
+ ip router ospf area 0.0.0.0
+exit
+!
+`, iface)
+}
+
+func BuildBaseConfig(selfName string, uid uint8, network *net.IPNet, activeInterfaces []string, passiveInterfaces []string) string {
+	interfaceConfig := ""
+	for _, iface := range activeInterfaces {
+		interfaceConfig += buildInterfaceConfig(iface, false)
+	}
+	for _, iface := range passiveInterfaces {
+		interfaceConfig += buildInterfaceConfig(iface, true)
 	}
 
 	// TODO: allow for broadcasting (+ summarizing) additional networks

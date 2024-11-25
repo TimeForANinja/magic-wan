@@ -87,10 +87,17 @@ func (p *peerState) resolveIP() *net.UDPAddr {
 }
 
 type state struct {
-	privateKey *wgtypes.Key
-	name       string
-	startPort  uint16
-	selfIDX    uint8
-	peers      map[uint8]*peerState
-	subnet     *net.IPNet
+	privateKey     *wgtypes.Key
+	name           string
+	startPort      uint16
+	selfIDX        uint8
+	peers          map[uint8]*peerState
+	subnet         *net.IPNet
+	otherInterface []*ManualInterface
+}
+
+type ManualInterface struct {
+	interfaceName string
+	ip            *net.IP
+	ospfPassive   bool
 }
