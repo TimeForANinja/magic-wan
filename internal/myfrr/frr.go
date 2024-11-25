@@ -2,6 +2,7 @@ package myfrr
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 )
@@ -21,6 +22,10 @@ func WriteFRRConfig(configFilePath string, configContent string) error {
 
 	// Restart FRR service to apply changes
 	cmd := exec.Command("systemctl", "restart", "frr")
+	log.WithFields(log.Fields{
+		"cmd":     "systemctl restart <service>",
+		"service": "frr",
+	}).Debug("Calling systemctl")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to restart FRR service: %w, output: %s", err, string(output))

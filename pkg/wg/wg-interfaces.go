@@ -80,6 +80,10 @@ func RemoveDevice(ifcName string) error {
 
 func startService(service string) error {
 	cmd := exec.Command("systemctl", "enable", "--now", service)
+	log.WithFields(log.Fields{
+		"cmd":     "systemctl enable --now <service>",
+		"service": service,
+	}).Debug("Calling systemctl")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to enable and start \"%s\" service: %w, output: %s", service, err, string(output))

@@ -35,7 +35,7 @@ func BuildBaseConfig(selfName string, uid uint8, network *net.IPNet, activeInter
 	// TODO: allow for SNAT / DNAT to be done for external interfaces
 	// TODO: remove debug log
 
-	return fmt.Sprintf(`log file /etc/frr/debug.log debugging
+	return fmt.Sprintf(`log file /var/log/frr/debug.log debugging
 log syslog informational
 hostname %s
 !
