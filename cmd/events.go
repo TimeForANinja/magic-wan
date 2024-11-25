@@ -16,9 +16,12 @@ func onPeerAdded(newPeer *peerState, skipFRR bool) {
 	log.WithFields(log.Fields{
 		"peer": newPeer,
 	}).Info("onPeerAdded")
-	// update state
+
+	// fill missing params
 	newPeer._parent = globalRunningState
 	newPeer.ip = newPeer.resolveIP()
+
+	// update state
 	globalRunningState.peers[newPeer.uid] = newPeer
 
 	// call action to add
@@ -47,15 +50,24 @@ func onPeerRemoved(oldPeer *peerState) {
 	removePeerFromCluster(oldPeer)
 }
 
-func onManualInterfaceAdded(iface *ManualInterface) {
+func onManualInterfaceAdded(iface *ManualInterface, skipFRR bool) {
 	log.WithFields(log.Fields{
 		"iface": iface,
 	}).Info("onManualInterfaceAdded")
 
-	// add IP to ip if not already there
+	// update state
+	globalRunningState.otherInterface = append(globalRunningState.otherInterface, iface)
+
+	// add IP to interface if not already there
 	if !osUtil.InterfaceHasAddress(iface.interfaceName, iface.ip.String()) {
 		err := osUtil.SetInterfaceAddress(iface.interfaceName, iface.ip.String())
 		panicOn(err)
+	}
+
+	// update other modules (if requested)
+	if !skipFRR {
+		// update frr
+		updateFRR()
 	}
 }
 

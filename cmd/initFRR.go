@@ -1,6 +1,7 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"magic-wan/internal"
 	"magic-wan/internal/myfrr"
 	"magic-wan/pkg/frr"
@@ -30,6 +31,7 @@ func buildFRRBaseConfig(state *state) string {
 	manualInterfaces := various.ArrayProject(state.otherInterface, func(oif *ManualInterface) string {
 		return oif.interfaceName
 	})
+	log.Debugf("Build Config for %d wg and %d manual interfaces", len(wireguardInterfaces), len(manualInterfaces))
 
 	startCfg := myfrr.BuildBaseConfig(
 		state.name,

@@ -50,7 +50,7 @@ func buildStateFromConfigs(private *cfg.PrivateConfig, shared *cfg.SharedConfig)
 		interfaceName: "lo",
 		ip:            &loopbackIP,
 		ospfPassive:   true,
-	})
+	}, true)
 }
 
 func configureWGInterface(client *wgctrl.Client, peer *peerState) {
