@@ -29,10 +29,10 @@ func VoteV1Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseVote(from, to string) error {
-	fromPeer := various.ArrayFind(globalPeers, func(p *peer) bool {
+	fromPeer := various.ArrayFind(globalPeers, func(p *VotingPeer) bool {
 		return p.ip == from
 	})
-	toPeer := various.ArrayFind(globalPeers, func(p *peer) bool {
+	toPeer := various.ArrayFind(globalPeers, func(p *VotingPeer) bool {
 		return p.ip == to
 	})
 	if fromPeer == nil || toPeer == nil {

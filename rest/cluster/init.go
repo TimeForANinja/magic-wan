@@ -4,9 +4,9 @@ import (
 	"time"
 )
 
-var globalPeers = make([]*peer, 0)
+var globalPeers = make([]*VotingPeer, 0)
 var globalVotes = make([]vote, 0)
-var globalMaster *peer = nil
+var globalMaster *VotingPeer = nil
 
 const AnnouncementInterval = 60 * time.Second
 const MaxVoteAge = 5 * AnnouncementInterval
@@ -14,7 +14,7 @@ const MaxVoteAge = 5 * AnnouncementInterval
 func InitCluster(peers []string) {
 	// populate list of peers
 	for _, p := range peers {
-		AddPeer(peer{ip: p})
+		AddPeer(VotingPeer{ip: p})
 	}
 
 	// Start the loop that calls callVote every 60 seconds
@@ -31,6 +31,6 @@ func HasMaster() bool {
 	return globalMaster != nil
 }
 
-func GetMaster() *peer {
+func GetMaster() *VotingPeer {
 	return globalMaster
 }
