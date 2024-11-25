@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="StartOnALl" type="CompoundRunConfigurationType">
+    <toRun name="build - test01" type="GoApplicationRunConfiguration" />
+    <toRun name="build - test02" type="GoApplicationRunConfiguration" />
+    <toRun name="build - test03" type="GoApplicationRunConfiguration" />
+    <toRun name="build - test04" type="GoApplicationRunConfiguration" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -11,6 +11,42 @@
           <config />
         </ContributedStateBase>
       </target>
+      <target name="test-01" type="ssh/sftp" uuid="ebe70dea-11c4-4c88-9ae6-e94d762938ab">
+        <config>
+          <option name="projectRootOnTarget" value="/root/magic-wan" />
+          <option name="serverName" value="root@test-01" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
+      <target name="test-02" type="ssh/sftp" uuid="1d2aa131-69c2-408c-88e2-4ab9bd6da507">
+        <config>
+          <option name="projectRootOnTarget" value="/root/magic-wan" />
+          <option name="serverName" value="root@test-02" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
+      <target name="test-03" type="ssh/sftp" uuid="d7250d86-e13e-4738-a2c7-32912ac49c81">
+        <config>
+          <option name="projectRootOnTarget" value="/root/magic-wan" />
+          <option name="serverName" value="root@test-03" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
+      <target name="test-04" type="ssh/sftp" uuid="26714a11-3a59-4c9d-a504-08cad10983ec">
+        <config>
+          <option name="projectRootOnTarget" value="/root/magic-wan" />
+          <option name="serverName" value="root@test-04" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
     </targets>
   </component>
 </project>

@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="build - test04" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="magic-wan" />
+    <target name="test-04" />
+    <working_directory value="$PROJECT_DIR$" />
+    <envs>
+      <env name="GOARCH" value="arm64" />
+      <env name="PRIV_FILE" value="private-04.yml" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="magic-wan/cmd" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

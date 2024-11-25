@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="128.140.91.53" id="d7efe3e5-d2e1-4f52-bd36-118e55d07f6d" keyPath="C:\Users\tkuts\OneDrive\IT\SSH\shared-demo-key_2024-01-15.ppk" port="22" customName="root@test-01" nameFormat="CUSTOM" username="root" useOpenSSHConfig="true">
+        <option name="customName" value="root@test-01" />
+      </sshConfig>
+      <sshConfig host="188.245.205.124" id="c7f1ae10-4d1f-44d9-996a-46245912bdef" keyPath="C:\Users\tkuts\OneDrive\IT\SSH\shared-demo-key_2024-01-15.ppk" port="22" customName="root@test-02" nameFormat="CUSTOM" username="root" useOpenSSHConfig="true">
+        <option name="customName" value="root@test-02" />
+      </sshConfig>
+      <sshConfig host="188.245.203.229" id="ef6db558-6bd5-462c-b1d1-5432ead81878" keyPath="C:\Users\tkuts\OneDrive\IT\SSH\shared-demo-key_2024-01-15.ppk" port="22" customName="root@test-03" nameFormat="CUSTOM" username="root" useOpenSSHConfig="true">
+        <option name="customName" value="root@test-03" />
+      </sshConfig>
+      <sshConfig host="5.75.238.153" id="1720c74a-ea59-41bc-bf43-9c0f86ec5f61" keyPath="C:\Users\tkuts\OneDrive\IT\SSH\shared-demo-key_2024-01-15.ppk" port="22" customName="root@test-04" nameFormat="CUSTOM" username="root" useOpenSSHConfig="true">
+        <option name="customName" value="root@test-04" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>
