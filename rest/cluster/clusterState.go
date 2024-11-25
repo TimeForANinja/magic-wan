@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	log "github.com/sirupsen/logrus"
 	"magic-wan/pkg/various"
 	"time"
 )
@@ -28,7 +29,18 @@ func UpdateVotes(v vote) {
 }
 
 func updateMaster() {
-	globalMaster = calcMaster(globalPeers, MaxVoteAge)
+	newMaster := calcMaster(globalPeers, MaxVoteAge)
+	if globalMaster == newMaster {
+		// no change, so no action required
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"new": newMaster,
+		"old": globalMaster,
+	}).Infof("New Cluster Master")
+
+	globalMaster = newMaster
 }
 
 func calcMaster(knownPeers []*votingPeer, maxAge time.Duration) *votingPeer {

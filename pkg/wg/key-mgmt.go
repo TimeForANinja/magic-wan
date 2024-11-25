@@ -30,7 +30,11 @@ func MustGeneratePrivateKey() wgtypes.Key {
 }
 
 func GenerateKeyPair() (wgtypes.Key, wgtypes.Key, error) {
-	privateKey := MustGeneratePrivateKey()
+	privateKey, err := wgtypes.GeneratePrivateKey()
+	if err != nil {
+		return wgtypes.Key{}, wgtypes.Key{}, err
+	}
+
 	publicKey := privateKey.PublicKey()
 	return privateKey, publicKey, nil
 }

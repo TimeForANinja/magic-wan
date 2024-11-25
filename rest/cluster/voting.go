@@ -3,6 +3,7 @@ package cluster
 import (
 	"bytes"
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
 )
@@ -32,10 +33,16 @@ func getMasterToVote() *votingPeer {
 func callVote() {
 	masterToVote := getMasterToVote()
 	if masterToVote == nil {
+		log.Info("skipping sending cluster vote, no master found")
 		return
 	}
 
 	voteMessage := voteMessage{Vote: masterToVote.ip}
+
+	log.WithFields(log.Fields{
+		"peers": globalPeers,
+		"vote":  voteMessage,
+	}).Infof("sending Cluster vote")
 
 	for _, peer := range globalPeers {
 		go sendVote(peer, voteMessage)
