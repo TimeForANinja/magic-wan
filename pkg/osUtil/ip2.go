@@ -62,6 +62,13 @@ func SetInterfaceAddress(interfaceName string, ip string) error {
 	return nil
 }
 
+func EnsureInterfaceHasAddress(interfaceName string, ip string) error {
+	if !InterfaceHasAddress(interfaceName, ip) {
+		return SetInterfaceAddress(interfaceName, ip)
+	}
+	return nil
+}
+
 func SetInterfaceUp(interfaceName string) error {
 	cmd := exec.Command("ip", "link", "set", "dev", interfaceName, "up")
 	output, err := cmd.CombinedOutput()

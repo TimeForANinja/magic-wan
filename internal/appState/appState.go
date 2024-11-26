@@ -119,9 +119,23 @@ func (s *ApplicationState) DeriveFRRState() *frr.Config {
 }
 
 func (s *ApplicationState) DeriveCluster() (*cluster.Cluster, error) {
+	// create cluster
 	myIP, _, err := s.GetLoopbackAddress()
 	if err != nil {
 		return nil, err
 	}
-	return cluster.InitCluster(myIP.String()), nil
+	c := cluster.NewCluster(myIP.String())
+
+	// add peers
+	for _, peer := range s.peers {
+		var peerIP net.IP
+		_, peerIP, _, err = peer.GetConnectionTo(0)
+		if err != nil {
+			return nil, err
+		}
+		c.AddPeer(peerIP.String())
+	}
+
+	// return
+	return c, nil
 }

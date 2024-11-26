@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const emptyFRRLine = "!"
+
 type Network struct {
 	cidr string
 	area string
@@ -40,7 +42,7 @@ func (r *OSPFRouter) buildConfigText() string {
 
 	configLines = append(configLines, "router ospf")
 
-	configLines = append(configLines, fmt.Sprintf(" ospf router-id %s\n !", r.routerId))
+	configLines = append(configLines, fmt.Sprintf(" ospf router-id %s", r.routerId), " "+emptyFRRLine)
 
 	// default-disable ospf on all interfaces
 	configLines = append(configLines, " passive-interface default")
@@ -58,7 +60,7 @@ func (r *OSPFRouter) buildConfigText() string {
 		configLines = append(configLines, fmt.Sprintf(" area %s range %s", area.area, area.cidr))
 	}
 
-	configLines = append(configLines, "exit", "!")
+	configLines = append(configLines, "exit", emptyFRRLine)
 	return strings.Join(configLines, "\n")
 }
 
@@ -80,7 +82,7 @@ func (i *Interface) buildConfigText() string {
 	}
 	configLines = append(configLines, fmt.Sprintf(" ip ospf area %s", i.area))
 
-	configLines = append(configLines, "exit", "!")
+	configLines = append(configLines, "exit", emptyFRRLine)
 	return strings.Join(configLines, "\n")
 }
 
@@ -127,16 +129,17 @@ func (c *Config) buildConfigText() string {
 	}
 	configLines = append(configLines, "frr defaults traditional")
 	configLines = append(configLines, fmt.Sprintf("hostname %s", c.hostname))
-	configLines = append(configLines, "!")
+	configLines = append(configLines, emptyFRRLine)
+
+	// main router config
+	configLines = append(configLines, c.Router.buildConfigText())
+	configLines = append(configLines, emptyFRRLine)
 
 	// config for the individual interfaces
 	for _, iface := range c.interfaces {
 		configLines = append(configLines, iface.buildConfigText())
 	}
-	configLines = append(configLines, "!")
-
-	// main router config
-	configLines = append(configLines, c.Router.buildConfigText())
+	configLines = append(configLines, emptyFRRLine)
 
 	return strings.Join(configLines, "\n")
 }
@@ -158,5 +161,9 @@ func (c *Config) RestartFRR() error {
 }
 
 func (c *Config) StartFRR() error {
+	err := c.WriteConfFile()
+	if err != nil {
+		return err
+	}
 	return pkg.FrrService.Start()
 }

@@ -5,6 +5,7 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"magic-wan/internal/appState"
 	"magic-wan/internal/cfg"
+	"magic-wan/pkg/osUtil"
 	"magic-wan/pkg/transferNetwork"
 	"magic-wan/pkg/various"
 	"os"
@@ -51,6 +52,10 @@ func initState(wgClient *wgctrl.Client) (*configState.ApplicationState, error) {
 	// build loopback manual peer
 	// since 0 as a unique id is not allowed, we can use those ranges as global unique identifiers for each node.
 	loopbackIP, _, _, err := transferNetwork.GetPeerToPeerNet(private.NodeID, 0, shared.Router.Subnet)
+	if err != nil {
+		return nil, err
+	}
+	err = osUtil.EnsureInterfaceHasAddress("lo", loopbackIP.String())
 	if err != nil {
 		return nil, err
 	}

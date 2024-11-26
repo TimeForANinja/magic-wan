@@ -6,9 +6,11 @@ import (
 	"time"
 )
 
+const dnsCheckInterval = 1 * time.Minute
+
 func startDNSChecks(state *configState.ApplicationState) {
 	// Until the end of time all we now do is check the DNS
-	ticker := time.NewTicker(time.Minute * 1)
+	ticker := time.NewTicker(dnsCheckInterval)
 	defer ticker.Stop()
 	for range ticker.C {
 		doDNSCheck(state)

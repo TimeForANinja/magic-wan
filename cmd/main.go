@@ -31,8 +31,6 @@ func main() {
 	frrConfig := appState.DeriveFRRState()
 	err = frrConfig.StartFRR()
 	panicOn(err)
-	err = frrConfig.PushToFrr()
-	panicOn(err)
 	log.Info("Started FRR")
 
 	// prepare cluster engine
@@ -45,6 +43,7 @@ func main() {
 	failChannel := make(chan error, 1)
 	go rest.StartRest(configCluster, failChannel)
 	go startDNSChecks(appState)
+	go configCluster.StartAnnouncements()
 
 	// wait for failChannel to return an error
 	select {
