@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        .login-form {
+            width: 300px;
+            padding: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-form input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .login-form button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div id="login-status"></div>
+<div class="login-form">
+    <h2>Login</h2>
+    <input type="text" id="username" value="root" disabled placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button onclick="doLogin()">Login</button>
+</div>
+
+<script>
+    async function doLogin() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/v1/doLogin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                await checkLoginStatus();
+                window.location.href = '/';
+            } else {
+                document.getElementById('login-status').textContent = 'Login failed!';
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+        }
+    }
+
+    async function checkLoginStatus() {
+        try {
+            const response = await fetch('/api/v1/checkLogin');
+            if (response.ok) {
+                const status = await response.json();
+                document.getElementById('login-status').textContent = status.loggedIn ? 'Logged in successfully!' : 'Not logged in';
+            }
+        } catch (error) {
+            console.error('Error checking login status:', error);
+        }
+    }
+</script>
+</body>
+</html>

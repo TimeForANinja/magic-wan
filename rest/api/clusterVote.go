@@ -1,4 +1,4 @@
-package rest
+package api
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func clusterVoteV1Handler_Factory(cls *cluster.Cluster) func(http.ResponseWriter, *http.Request) {
+func ClusterVoteV1HandlerFactory(cls *cluster.Cluster) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Parse the vote from the body
 		msg := &cluster.VoteMessage{}

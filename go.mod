@@ -3,6 +3,7 @@ module magic-wan
 go 1.23
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/sirupsen/logrus v1.9.3
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6
 	gopkg.in/yaml.v2 v2.4.0

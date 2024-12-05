@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+<body onload="startRedirect()">
+    <div class="container">
+        <p>Logged out {{.User}}</p>
+        <button id="redirectButton" onclick="startRedirect()">Redirecting in 5 seconds...</button>
+    </div>
+<script>
+    function startRedirect() {
+        var button = document.getElementById('redirectButton');
+        button.disabled = true;
+        var count = 5;
+        var countdown = setInterval(function () {
+            count--;
+            button.innerText = 'Redirecting in ' + count + ' seconds...';
+            if (count === 0) {
+                clearInterval(countdown);
+                redirect();
+            }
+        }, 1000);
+
+    function redirect() {
+        window.location.href = '/';
+    }
+    }
+</script>
+</body>
+</html>

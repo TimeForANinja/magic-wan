@@ -1,4 +1,4 @@
-package rest
+package api
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func wireguardKeyGenV1Handler(w http.ResponseWriter, r *http.Request) {
+func WireguardKeyGenV1Handler(w http.ResponseWriter, _ *http.Request) {
 	privkey, pubkey, err := wg.GenerateKeyPair()
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
