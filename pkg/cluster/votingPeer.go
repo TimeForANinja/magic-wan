@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"magic-wan/pkg/cluster/shared"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ type votingPeer struct {
 	failedSends int
 }
 
-func (peer *votingPeer) sendVote(voteMessage VoteMessage) {
+func (peer *votingPeer) sendVote(voteMessage shared.VoteMessage) {
 	url := fmt.Sprintf("http://%s/api/v1/cluster/vote", peer.ip)
 
 	jsonData, err := json.Marshal(voteMessage)

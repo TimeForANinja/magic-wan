@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"magic-wan/pkg/cluster"
+	sharedCluster "magic-wan/pkg/cluster/shared"
 	"magic-wan/rest/api"
 	"magic-wan/rest/api/api-login"
 	"magic-wan/rest/gui"
@@ -35,9 +35,8 @@ func padWithLogin(checkAuth int, redirectURL string, handler func(http.ResponseW
 	}
 }
 
-func StartRest(cluster *cluster.Cluster, errorChannel chan error) {
+func StartRest(cluster sharedCluster.Cluster, errorChannel chan error) {
 	// API Routes
-	http.HandleFunc("/api/v1/debug", padWithLogin(AuthRequired, "/login", api.DebugV1Handler))
 	clusterVoteV1Handler := api.ClusterVoteV1HandlerFactory(cluster)
 	http.HandleFunc("/api/v1/cluster/vote", clusterVoteV1Handler)
 	http.HandleFunc("/api/v1/wgkey", api.WireguardKeyGenV1Handler)
@@ -48,6 +47,7 @@ func StartRest(cluster *cluster.Cluster, errorChannel chan error) {
 	http.HandleFunc("/login", padWithLogin(NoAuthRequired, "/", gui.LoginHandler))
 	http.HandleFunc("/", padWithLogin(AuthRequired, "/login", gui.HomeHandler))
 	http.HandleFunc("/logout", padWithLogin(AuthRequired, "/login", gui.LogoutHandler))
+	http.HandleFunc("/debug", padWithLogin(AuthRequired, "/login", gui.DebugHandler))
 
 	port := 80
 	server := &http.Server{

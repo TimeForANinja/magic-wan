@@ -118,7 +118,7 @@ func (s *ApplicationState) DeriveFRRState() *frr.Config {
 	return frrConf
 }
 
-func (s *ApplicationState) DeriveCluster() (*cluster.Cluster, error) {
+func (s *ApplicationState) DeriveCluster() (*cluster.Cluster[cluster.CoreConfig], error) {
 	// create cluster
 	myIP, _, err := s.GetLoopbackAddress()
 	if err != nil {

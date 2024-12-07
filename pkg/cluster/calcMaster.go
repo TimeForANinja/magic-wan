@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (c *Cluster) getMasterToVote() *votingPeer {
+func (c *Cluster[T]) getMasterToVote() *votingPeer {
 	// If we already have a master it's best to stick with it
 	master := c.getMaster()
 	if master != nil && !master.isStale() {
@@ -25,7 +25,7 @@ func (c *Cluster) getMasterToVote() *votingPeer {
 	return c.peers[randomIndex]
 }
 
-func (c *Cluster) getValidVotes() []*peerVote {
+func (c *Cluster[T]) getValidVotes() []*peerVote {
 	// Filter out votes older than maxAge
 	validVotes := various.ArrayFilter(c.votes, func(v *peerVote) bool {
 		return time.Since(v.time) <= maxVoteAge
@@ -37,7 +37,7 @@ func (c *Cluster) getValidVotes() []*peerVote {
 	})
 }
 
-func (c *Cluster) calcMaster(knownPeers []*votingPeer) *votingPeer {
+func (c *Cluster[T]) calcMaster(knownPeers []*votingPeer) *votingPeer {
 	validVotes := c.getValidVotes()
 
 	// Ensure more than 50% of knownPeers have voted
@@ -55,7 +55,7 @@ func (c *Cluster) calcMaster(knownPeers []*votingPeer) *votingPeer {
 	return candidates[0]
 }
 
-func (c *Cluster) masterCandidate() []*votingPeer {
+func (c *Cluster[T]) masterCandidate() []*votingPeer {
 	validVotes := c.getValidVotes()
 
 	candidates := c.calcTopCandidates(validVotes)
@@ -63,7 +63,7 @@ func (c *Cluster) masterCandidate() []*votingPeer {
 	return candidates
 }
 
-func (c *Cluster) calcTopCandidates(votes []*peerVote) []*votingPeer {
+func (c *Cluster[T]) calcTopCandidates(votes []*peerVote) []*votingPeer {
 	voteCounts := make(map[*votingPeer]int)
 
 	// Explicit initialise with "0" for all Peers

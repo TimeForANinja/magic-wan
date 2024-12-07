@@ -3,6 +3,7 @@ package cluster
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"magic-wan/pkg/cluster/shared"
 	"magic-wan/pkg/various"
 	"time"
 )
@@ -13,13 +14,8 @@ type peerVote struct {
 	time  time.Time
 }
 
-type VoteMessage struct {
-	Voter string `json:"voter"`
-	Vote  string `json:"vote"`
-}
-
-func (c *Cluster) OnVoteReceived(vm *VoteMessage) error {
-	vote, err := vm.parse(c)
+func (c *Cluster[T]) OnVoteReceived(vm *shared.VoteMessage) error {
+	vote, err := c.parse(vm)
 	if err != nil {
 		return err
 	}
@@ -28,7 +24,7 @@ func (c *Cluster) OnVoteReceived(vm *VoteMessage) error {
 	return nil
 }
 
-func (vm *VoteMessage) parse(c *Cluster) (*peerVote, error) {
+func (c *Cluster[CoreConfig]) parse(vm *shared.VoteMessage) (*peerVote, error) {
 	fromPeer := various.ArrayFind(c.peers, func(p *votingPeer) bool {
 		return p.ip == vm.Voter
 	})
@@ -50,7 +46,7 @@ func (vm *VoteMessage) parse(c *Cluster) (*peerVote, error) {
 	}, nil
 }
 
-func (c *Cluster) updateVotes(newVote *peerVote) {
+func (c *Cluster[T]) updateVotes(newVote *peerVote) {
 	log.WithFields(log.Fields{
 		"vote":  newVote,
 		"votes": c.votes,

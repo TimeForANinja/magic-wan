@@ -2,6 +2,7 @@ package cluster
 
 import (
 	log "github.com/sirupsen/logrus"
+	"magic-wan/pkg/cluster/shared"
 	"magic-wan/pkg/various"
 	"time"
 )
@@ -10,16 +11,21 @@ const announcementInterval = 60 * time.Second
 const maxVoteAge = 5 * announcementInterval
 const maxFailedSends = 2
 
-type Cluster struct {
+type CoreConfig struct {
+	version uint16
+}
+
+type Cluster[T CoreConfig] struct {
 	self   *votingPeer
 	peers  []*votingPeer
 	votes  []*peerVote
 	master *votingPeer
+	config T
 }
 
-func NewCluster(selfIP string) *Cluster {
+func NewCluster[T CoreConfig](selfIP string) *Cluster[T] {
 	selfPeer := &votingPeer{ip: selfIP}
-	c := &Cluster{
+	c := &Cluster[T]{
 		self:  selfPeer,
 		peers: []*votingPeer{selfPeer},
 		votes: make([]*peerVote, 0),
@@ -28,22 +34,23 @@ func NewCluster(selfIP string) *Cluster {
 	return c
 }
 
-func (c *Cluster) StartAnnouncements() {
+func (c *Cluster[T]) StartAnnouncements() {
 	// Start the loop that calls callVote every 60 seconds
 	ticker := time.NewTicker(announcementInterval)
 	defer ticker.Stop()
 	for range ticker.C {
-		c.doVoting()
+		// TODO: use actual config Version
+		c.doVoting(255)
 	}
 }
 
-func (c *Cluster) AddPeer(ip string) {
+func (c *Cluster[T]) AddPeer(ip string) {
 	c.peers = append(c.peers, &votingPeer{
 		ip: ip,
 	})
 }
 
-func (c *Cluster) RemovePeer(ip string) {
+func (c *Cluster[T]) RemovePeer(ip string) {
 	c.peers = various.ArrayFilter(c.peers, func(p *votingPeer) bool {
 		return p.ip != ip
 	})
@@ -55,28 +62,29 @@ func (c *Cluster) RemovePeer(ip string) {
 	}
 }
 
-func (c *Cluster) HasMaster() bool {
+func (c *Cluster[T]) HasMaster() bool {
 	return c.master != nil
 }
 
-func (c *Cluster) getMaster() *votingPeer {
+func (c *Cluster[T]) getMaster() *votingPeer {
 	return c.master
 }
 
-func (c *Cluster) isMaster(ip string) bool {
+func (c *Cluster[T]) isMaster(ip string) bool {
 	return c.master != nil && c.master.ip == ip
 }
 
-func (c *Cluster) doVoting() {
+func (c *Cluster[T]) doVoting(cfgVersion uint16) {
 	masterToVote := c.getMasterToVote()
 	if masterToVote == nil {
 		log.Info("skipping sending cluster vote, no master found")
 		return
 	}
 
-	voteMessage := VoteMessage{
-		Voter: c.self.ip,
-		Vote:  masterToVote.ip,
+	voteMessage := shared.VoteMessage{
+		Voter:         c.self.ip,
+		Vote:          masterToVote.ip,
+		ConfigVersion: cfgVersion,
 	}
 
 	log.WithFields(log.Fields{
@@ -89,7 +97,7 @@ func (c *Cluster) doVoting() {
 	}
 }
 
-func (c *Cluster) checkForNewMaster() {
+func (c *Cluster[T]) checkForNewMaster() {
 	newMaster := c.calcMaster(c.peers)
 	if c.master == newMaster {
 		// no change, so no action required

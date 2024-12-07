@@ -14,14 +14,14 @@ func InstallAsService() (*Service, error) {
 		return nil, fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	err = installAsService(WanServiceName, absPath)
+	err = installNewService(WanServiceName, absPath)
 	if err != nil {
 		return nil, err
 	}
 	return &Service{Name: WanServiceName}, nil
 }
 
-func installAsService(serviceName, executablePath string) error {
+func installNewService(serviceName, executablePath string) error {
 	servicePath := fmt.Sprintf("/etc/systemd/system/%s.service", serviceName)
 
 	// Create the systemd service file content

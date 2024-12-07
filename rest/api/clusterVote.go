@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"magic-wan/pkg/cluster"
+	"magic-wan/pkg/cluster/shared"
 	"net/http"
 )
 
-func ClusterVoteV1HandlerFactory(cls *cluster.Cluster) func(http.ResponseWriter, *http.Request) {
+func ClusterVoteV1HandlerFactory(cls shared.Cluster) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Parse the vote from the body
-		msg := &cluster.VoteMessage{}
+		msg := &shared.VoteMessage{}
 		err := json.NewDecoder(r.Body).Decode(msg)
 		if err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)

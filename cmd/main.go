@@ -34,7 +34,7 @@ func main() {
 	log.Info("Started FRR")
 
 	// prepare cluster engine
-	var configCluster *cluster.Cluster
+	var configCluster *cluster.Cluster[cluster.CoreConfig]
 	configCluster, err = appState.DeriveCluster()
 	panicOn(err)
 	log.Info("Initialised HA Cluster")

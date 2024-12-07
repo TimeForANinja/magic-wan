@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"magic-wan/pkg/cluster/shared"
 	"magic-wan/pkg/various"
 	"testing"
 )
@@ -13,7 +14,7 @@ var testPeers = []string{
 }
 var testStalePeerIDX = 2
 
-func buildState_newCluster() *Cluster {
+func buildState_newCluster() *Cluster[CoreConfig] {
 	c := NewCluster(testPeers[0])
 	for _, peer := range testPeers[1:] {
 		c.AddPeer(peer)
@@ -21,8 +22,8 @@ func buildState_newCluster() *Cluster {
 	return c
 }
 
-func fakeVote(c *Cluster, peer, selectedPeer string) {
-	err := c.OnVoteReceived(&VoteMessage{
+func fakeVote(c *Cluster[CoreConfig], peer, selectedPeer string) {
+	err := c.OnVoteReceived(&shared.VoteMessage{
 		Voter: peer,
 		Vote:  selectedPeer,
 	})
@@ -31,7 +32,7 @@ func fakeVote(c *Cluster, peer, selectedPeer string) {
 	}
 }
 
-func buildState_masterStale() *Cluster {
+func buildState_masterStale() *Cluster[CoreConfig] {
 
 	c := NewCluster(testPeers[0])
 	for _, peer := range testPeers[1:] {

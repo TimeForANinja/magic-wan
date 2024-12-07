@@ -1,4 +1,4 @@
-package api
+package gui
 
 import (
 	"embed"
@@ -13,7 +13,7 @@ import (
 //go:embed debug_page.html
 var debugPageFS embed.FS
 
-func DebugV1Handler(w http.ResponseWriter, _ *http.Request, _ *shared.User) {
+func DebugHandler(w http.ResponseWriter, _ *http.Request, _ *shared.User) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
