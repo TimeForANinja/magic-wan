@@ -2,10 +2,13 @@ package frr
 
 import (
 	"fmt"
-	"magic-wan/pkg"
 	"magic-wan/pkg/osUtil"
 	"strings"
 )
+
+var frrService = &osUtil.Service{
+	Name: "frr",
+}
 
 const emptyFRRLine = "!"
 
@@ -157,7 +160,7 @@ func (c *Config) PushToFrr() error {
 }
 
 func (c *Config) RestartFRR() error {
-	return pkg.FrrService.Reload()
+	return frrService.Reload()
 }
 
 func (c *Config) StartFRR() error {
@@ -165,5 +168,5 @@ func (c *Config) StartFRR() error {
 	if err != nil {
 		return err
 	}
-	return pkg.FrrService.Start()
+	return frrService.Start()
 }

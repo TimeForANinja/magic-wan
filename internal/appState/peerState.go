@@ -1,4 +1,4 @@
-package configState
+package appState
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type peerState struct {
+type PeerState struct {
 	publicKey *wgtypes.Key
 	_parent   *ApplicationState
 	hostname  string
@@ -19,7 +19,7 @@ type peerState struct {
 	ip        *net.UDPAddr
 }
 
-func (p *peerState) BuildWGConfig() (wgtypes.Config, error) {
+func (p *PeerState) BuildWGConfig() (wgtypes.Config, error) {
 	selfPort, _ := p.GetPorts()
 	linkNetwork, err := p.GetLinkNetwork()
 	if err != nil {
@@ -50,26 +50,26 @@ func (p *peerState) BuildWGConfig() (wgtypes.Config, error) {
 	}, nil
 }
 
-func (p *peerState) GetLinkNetwork() (*net.IPNet, error) {
+func (p *PeerState) GetLinkNetwork() (*net.IPNet, error) {
 	_, _, nw, err := p.GetConnectionTo(p._parent.selfIDX)
 	return nw, err
 }
 
-func (p *peerState) GetConnectionTo(node uint8) (net.IP, net.IP, *net.IPNet, error) {
+func (p *PeerState) GetConnectionTo(node uint8) (net.IP, net.IP, *net.IPNet, error) {
 	me, peer, transferNet, err := transferNetwork.GetPeerToPeerNet(node, p.uid, p._parent.subnet)
 	return me, peer, transferNet, err
 }
 
-func (p *peerState) GetLinkIPs() (string, string, error) {
+func (p *PeerState) GetLinkIPs() (string, string, error) {
 	me, peer, _, err := p.GetConnectionTo(p._parent.selfIDX)
 	return me.String(), peer.String(), err
 }
 
-func (p *peerState) getWGName() string {
+func (p *PeerState) getWGName() string {
 	return transferNetwork.BuildWireguardInterfaceName(p._parent.selfIDX, p.uid)
 }
 
-func (p *peerState) GetKeepalive() *time.Duration {
+func (p *PeerState) GetKeepalive() *time.Duration {
 	keepAlive := 0 * time.Second
 	if p.keepalive {
 		keepAlive = 10 * time.Second
@@ -77,11 +77,11 @@ func (p *peerState) GetKeepalive() *time.Duration {
 	return &keepAlive
 }
 
-func (p *peerState) GetPorts() (int, int) {
+func (p *PeerState) GetPorts() (int, int) {
 	return transferNetwork.CalculatePorts(p._parent.startPort, p._parent.selfIDX, p.uid)
 }
 
-func (p *peerState) ResolveAddr() (*net.UDPAddr, error) {
+func (p *PeerState) ResolveAddr() (*net.UDPAddr, error) {
 	// if no hostname was provided we obviously can't parse it
 	if p.hostname == "" {
 		return nil, nil
@@ -93,12 +93,12 @@ func (p *peerState) ResolveAddr() (*net.UDPAddr, error) {
 	return ip, err
 }
 
-func (p *peerState) CachedAddr() *net.UDPAddr {
+func (p *PeerState) CachedAddr() *net.UDPAddr {
 	return p.ip
 }
 
 /*
-func (p *peerState) Remove() {
+func (p *PeerState) Remove() {
 	// IMPROVEMENT: implement
 
 	// old implementation:
@@ -107,7 +107,7 @@ func (p *peerState) Remove() {
 }
 */
 
-func (p *peerState) PushToWireguard() error {
+func (p *PeerState) PushToWireguard() error {
 	ifcName := p.getWGName()
 
 	// check if we already have this device
@@ -144,7 +144,7 @@ func (p *peerState) PushToWireguard() error {
 	return err
 }
 
-func (p *peerState) NotifyIPChange(newIP *net.UDPAddr) error {
+func (p *PeerState) NotifyIPChange(newIP *net.UDPAddr) error {
 	log.WithFields(log.Fields{
 		"peer":  p,
 		"oldIP": p.ip,

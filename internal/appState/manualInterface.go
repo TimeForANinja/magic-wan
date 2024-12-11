@@ -1,4 +1,4 @@
-package configState
+package appState
 
 import "net"
 

@@ -1,4 +1,4 @@
-package configState
+package appState
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ type ApplicationState struct {
 	wgClient *wgctrl.Client
 
 	// lists, that can be empty
-	peers          map[uint8]*peerState
+	peers          map[uint8]*PeerState
 	otherInterface []*ManualInterface
 }
 
@@ -45,7 +45,7 @@ func NewState(
 		wgClient:   wgClient,
 
 		// optional
-		peers:          make(map[uint8]*peerState),
+		peers:          make(map[uint8]*PeerState),
 		otherInterface: make([]*ManualInterface, 0),
 	}
 }
@@ -58,7 +58,7 @@ func (s *ApplicationState) AddWireguardInterface(
 	publicKey *wgtypes.Key,
 	keepalive bool,
 ) error {
-	newPeer := peerState{
+	newPeer := PeerState{
 		publicKey: publicKey,
 		hostname:  hostname,
 		uid:       uid,
@@ -94,7 +94,7 @@ func (s *ApplicationState) GetLoopbackAddress() (*net.IP, *net.IPNet, error) {
 	return &selfLoopbackIP, peerNet, err
 }
 
-func (s *ApplicationState) GetPeers() []*peerState {
+func (s *ApplicationState) GetPeers() []*PeerState {
 	return various.MapValues(s.peers)
 }
 

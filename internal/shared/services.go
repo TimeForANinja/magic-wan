@@ -1,4 +1,4 @@
-package pkg
+package shared
 
 import "magic-wan/pkg/osUtil"
 

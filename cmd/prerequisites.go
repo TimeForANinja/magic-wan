@@ -2,7 +2,7 @@ package main
 
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
-	"magic-wan/pkg"
+	"magic-wan/internal/shared"
 	"magic-wan/pkg/frr"
 	"magic-wan/pkg/osUtil"
 	"magic-wan/pkg/wg"
@@ -62,11 +62,11 @@ func baseConfigureRouting() error {
 	}
 
 	// frr is default-enabled after installation so let's disable it
-	err = pkg.FrrService.Disable()
+	err = shared.FrrService.Disable()
 	if err != nil {
 		return err
 	}
-	err = pkg.FrrService.Stop()
+	err = shared.FrrService.Stop()
 	if err != nil {
 		return err
 	}
